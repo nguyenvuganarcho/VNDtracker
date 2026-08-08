@@ -70,7 +70,6 @@ export default function Login() {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        bgcolor: '#f5f5f5',
       }}
     >
       <Card sx={{ maxWidth: 400, width: '100%', mx: 2 }}>
