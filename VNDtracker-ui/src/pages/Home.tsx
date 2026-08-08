@@ -41,6 +41,10 @@ export default function Home() {
         Logout
       </Button>
       <Typography variant="body1" gutterBottom>
+        <Link component={RouterLink} to="/expenses">
+          Expenses
+        </Link>
+        {' · '}
         <Link component={RouterLink} to="/categories">
           Manage categories
         </Link>

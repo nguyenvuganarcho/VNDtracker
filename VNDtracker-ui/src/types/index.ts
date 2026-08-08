@@ -42,3 +42,29 @@ export interface Category {
 export interface CreateCategoryRequest {
   name: string;
 }
+
+export interface Expense {
+  expenseId: number;
+  userId: number;
+  categoryId: number;
+  amount: number;
+  expenseDate: string;
+  note: string | null;
+  receiptImagePath: string | null;
+  source: 'manual' | 'ai';
+  inputType: 'bill' | 'transfer' | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateExpenseRequest {
+  categoryId: number;
+  amount: number;
+  expenseDate: string;
+  note?: string;
+}
+
+export interface ExpenseFilters {
+  month?: string;
+  categoryId?: number;
+}

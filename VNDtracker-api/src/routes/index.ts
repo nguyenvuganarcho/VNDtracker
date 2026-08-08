@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthController } from '../modules/auth/auth.controller';
 import { CategoryController } from '../modules/category/category.controller';
+import { ExpenseController } from '../modules/expense/expense.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -15,6 +16,10 @@ router.post('/categories', requireAuth, categoryController.create);
 router.put('/categories/:id', requireAuth, categoryController.update);
 router.delete('/categories/:id', requireAuth, categoryController.delete);
 
-// Feature routes (expense) mount here as each is implemented
+const expenseController = new ExpenseController();
+router.get('/expenses', requireAuth, expenseController.getAll);
+router.post('/expenses', requireAuth, expenseController.create);
+router.put('/expenses/:id', requireAuth, expenseController.update);
+router.delete('/expenses/:id', requireAuth, expenseController.delete);
 
 export default router;
