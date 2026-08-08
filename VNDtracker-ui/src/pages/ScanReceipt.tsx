@@ -27,7 +27,7 @@ const emptyForm = { categoryId: '', amount: '', expenseDate: today(), note: '' }
 
 export default function ScanReceipt() {
   const navigate = useNavigate();
-  const { t, currencySymbol } = useLanguage();
+  const { t, language, currencySymbol } = useLanguage();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [file, setFile] = useState<File | null>(null);
@@ -182,6 +182,7 @@ export default function ScanReceipt() {
               value={form.expenseDate}
               onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
               InputLabelProps={{ shrink: true }}
+              inputProps={{ lang: language === 'vi' ? 'vi-VN' : 'en-US' }}
               disabled={saving}
             />
           </Stack>

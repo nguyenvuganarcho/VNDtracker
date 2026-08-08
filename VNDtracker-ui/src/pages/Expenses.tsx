@@ -37,7 +37,7 @@ const emptyForm = {
 };
 
 export default function Expenses() {
-  const { t, formatCurrency, currencySymbol } = useLanguage();
+  const { t, language, formatCurrency, currencySymbol } = useLanguage();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -196,6 +196,7 @@ export default function Expenses() {
           value={monthFilter}
           onChange={(e) => setMonthFilter(e.target.value)}
           InputLabelProps={{ shrink: true }}
+          inputProps={{ lang: language === 'vi' ? 'vi-VN' : 'en-US' }}
         />
         <FormControl size="small" sx={{ minWidth: 180 }}>
           <InputLabel id="category-filter-label">{t('category')}</InputLabel>
@@ -243,6 +244,7 @@ export default function Expenses() {
                 value={form.expenseDate}
                 onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
                 InputLabelProps={{ shrink: true }}
+                inputProps={{ lang: language === 'vi' ? 'vi-VN' : 'en-US' }}
                 disabled={saving}
               />
             </Stack>
