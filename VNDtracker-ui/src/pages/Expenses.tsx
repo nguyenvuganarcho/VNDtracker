@@ -17,6 +17,8 @@ import {
   Stack,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getExpensesApi, createExpenseApi, updateExpenseApi, deleteExpenseApi } from '../api/expense';
@@ -37,7 +39,7 @@ const emptyForm = {
 };
 
 export default function Expenses() {
-  const { t, language, formatCurrency, currencySymbol } = useLanguage();
+  const { t, formatCurrency, currencySymbol } = useLanguage();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -189,14 +191,12 @@ export default function Expenses() {
       )}
 
       <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-        <TextField
+        <DatePicker
           label={t('month')}
-          type="month"
-          size="small"
-          value={monthFilter}
-          onChange={(e) => setMonthFilter(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          inputProps={{ lang: language === 'vi' ? 'vi-VN' : 'en-US' }}
+          views={['year', 'month']}
+          value={dayjs(monthFilter)}
+          onChange={(newValue) => setMonthFilter(newValue ? newValue.format('YYYY-MM') : '')}
+          slotProps={{ textField: { size: 'small' } }}
         />
         <FormControl size="small" sx={{ minWidth: 180 }}>
           <InputLabel id="category-filter-label">{t('category')}</InputLabel>
@@ -236,16 +236,12 @@ export default function Expenses() {
                 disabled={saving}
                 autoFocus
               />
-              <TextField
+              <DatePicker
                 label={t('date')}
-                type="date"
-                size="small"
-                fullWidth
-                value={form.expenseDate}
-                onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ lang: language === 'vi' ? 'vi-VN' : 'en-US' }}
+                value={dayjs(form.expenseDate)}
+                onChange={(newValue) => setForm({ ...form, expenseDate: newValue ? newValue.format('YYYY-MM-DD') : '' })}
                 disabled={saving}
+                slotProps={{ textField: { size: 'small', fullWidth: true } }}
               />
             </Stack>
             <FormControl size="small" fullWidth>

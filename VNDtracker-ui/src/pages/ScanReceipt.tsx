@@ -13,6 +13,8 @@ import FormControl from '@mui/material/FormControl';
 import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
 import type { SelectChangeEvent } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import { scanReceiptApi } from '../api/ai';
 import { createExpenseApi } from '../api/expense';
 import { getCategoriesApi } from '../api/category';
@@ -27,7 +29,7 @@ const emptyForm = { categoryId: '', amount: '', expenseDate: today(), note: '' }
 
 export default function ScanReceipt() {
   const navigate = useNavigate();
-  const { t, language, currencySymbol } = useLanguage();
+  const { t, currencySymbol } = useLanguage();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [file, setFile] = useState<File | null>(null);
@@ -174,16 +176,12 @@ export default function ScanReceipt() {
               onChange={(e) => setForm({ ...form, amount: e.target.value })}
               disabled={saving}
             />
-            <TextField
+            <DatePicker
               label={t('date')}
-              type="date"
-              size="small"
-              fullWidth
-              value={form.expenseDate}
-              onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
-              InputLabelProps={{ shrink: true }}
-              inputProps={{ lang: language === 'vi' ? 'vi-VN' : 'en-US' }}
+              value={dayjs(form.expenseDate)}
+              onChange={(newValue) => setForm({ ...form, expenseDate: newValue ? newValue.format('YYYY-MM-DD') : '' })}
               disabled={saving}
+              slotProps={{ textField: { size: 'small', fullWidth: true } }}
             />
           </Stack>
 
