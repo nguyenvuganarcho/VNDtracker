@@ -13,9 +13,12 @@ import {
 } from '@mui/material';
 import { registerApi } from '../api/auth';
 import { setToken, setUser } from '../utils/auth';
+import { useLanguage } from '../i18n';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -37,7 +40,7 @@ export default function Register() {
     e.preventDefault();
 
     if (!formData.name || !formData.email || !formData.password) {
-      setError('Please fill in all fields');
+      setError(t('fillAllFields'));
       return;
     }
 
@@ -52,13 +55,13 @@ export default function Register() {
         setUser(response.data.user);
         navigate('/');
       } else {
-        setError(response.message || 'Registration failed');
+        setError(response.message || t('registrationFailed'));
       }
     } catch (err) {
       const message = err instanceof Error && 'response' in err
         ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
         : undefined;
-      setError(message || 'Registration failed');
+      setError(message || t('registrationFailed'));
     } finally {
       setLoading(false);
     }
@@ -71,15 +74,20 @@ export default function Register() {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
+        position: 'relative',
       }}
     >
+      <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
+        <LanguageSwitcher />
+      </Box>
+
       <Card sx={{ maxWidth: 400, width: '100%', mx: 2 }}>
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h4" gutterBottom align="center" fontWeight="bold">
             VNDtracker
           </Typography>
           <Typography variant="body2" color="text.secondary" align="center" mb={3}>
-            Create your account
+            {t('createAccountSubtitle')}
           </Typography>
 
           {error && (
@@ -91,7 +99,7 @@ export default function Register() {
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Name"
+              label={t('name')}
               name="name"
               type="text"
               value={formData.name}
@@ -104,7 +112,7 @@ export default function Register() {
 
             <TextField
               fullWidth
-              label="Email"
+              label={t('email')}
               name="email"
               type="email"
               value={formData.email}
@@ -116,7 +124,7 @@ export default function Register() {
 
             <TextField
               fullWidth
-              label="Password"
+              label={t('password')}
               name="password"
               type="password"
               value={formData.password}
@@ -124,7 +132,7 @@ export default function Register() {
               margin="normal"
               required
               disabled={loading}
-              helperText="At least 6 characters"
+              helperText={t('passwordHelper')}
             />
 
             <Button
@@ -135,14 +143,14 @@ export default function Register() {
               disabled={loading}
               sx={{ mt: 3, mb: 2, py: 1.5 }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Create account'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : t('createAccount')}
             </Button>
           </form>
 
           <Typography variant="body2" align="center">
-            Already have an account?{' '}
+            {t('alreadyHaveAccount')}{' '}
             <Link component={RouterLink} to="/login">
-              Sign in
+              {t('signInLink')}
             </Link>
           </Typography>
         </CardContent>

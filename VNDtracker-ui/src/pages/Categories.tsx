@@ -20,9 +20,12 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { getCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
+import { useLanguage } from '../i18n';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import type { Category } from '../types';
 
 export default function Categories() {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -38,7 +41,7 @@ export default function Categories() {
       const res = await getCategoriesApi();
       setCategories(res.data);
     } catch {
-      setError('Failed to load categories');
+      setError(t('failedLoadCategories'));
     } finally {
       setLoading(false);
     }
@@ -46,6 +49,7 @@ export default function Categories() {
 
   useEffect(() => {
     loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAdd = async () => {
@@ -59,7 +63,7 @@ export default function Categories() {
       setNewName('');
       await loadCategories();
     } catch {
-      setError('Failed to add category');
+      setError(t('failedAddCategory'));
     } finally {
       setAdding(false);
     }
@@ -85,7 +89,7 @@ export default function Categories() {
       setEditingId(null);
       await loadCategories();
     } catch {
-      setError('Failed to update category');
+      setError(t('failedUpdateCategory'));
     }
   };
 
@@ -95,18 +99,21 @@ export default function Categories() {
       await deleteCategoryApi(categoryId);
       await loadCategories();
     } catch {
-      setError('Failed to delete category');
+      setError(t('failedDeleteCategory'));
     }
   };
 
   return (
     <Box sx={{ p: 4, maxWidth: 500 }}>
-      <Link component={RouterLink} to="/" variant="body2">
-        Back
-      </Link>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Link component={RouterLink} to="/" variant="body2">
+          {t('back')}
+        </Link>
+        <LanguageSwitcher />
+      </Box>
 
       <Typography variant="h4" gutterBottom sx={{ mt: 2 }}>
-        Categories
+        {t('categoriesTitle')}
       </Typography>
 
       {error && (
@@ -119,14 +126,14 @@ export default function Categories() {
         <TextField
           fullWidth
           size="small"
-          label="New category"
+          label={t('newCategory')}
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           disabled={adding}
         />
         <Button variant="contained" onClick={handleAdd} disabled={adding || !newName.trim()}>
-          Add
+          {t('add')}
         </Button>
       </Box>
 
@@ -151,7 +158,7 @@ export default function Categories() {
                     </IconButton>
                   </>
                 ) : category.isDefault ? (
-                  <Chip label="Default" size="small" variant="outlined" />
+                  <Chip label={t('default')} size="small" variant="outlined" />
                 ) : (
                   <>
                     <IconButton edge="end" onClick={() => startEdit(category)} aria-label="Edit">
@@ -174,7 +181,7 @@ export default function Categories() {
                   autoFocus
                 />
               ) : (
-                <ListItemText primary={getCategoryLabel(category)} />
+                <ListItemText primary={getCategoryLabel(category, t)} />
               )}
             </ListItem>
           ))}

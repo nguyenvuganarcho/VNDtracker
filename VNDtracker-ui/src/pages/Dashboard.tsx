@@ -12,6 +12,8 @@ import { getUser, removeToken } from '../utils/auth';
 import { getExpensesApi } from '../api/expense';
 import { getCategoriesApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
+import { useLanguage } from '../i18n';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import type { Category, Expense } from '../types';
 
 type HealthStatus = 'checking' | 'ok' | 'unreachable';
@@ -19,7 +21,6 @@ type HealthStatus = 'checking' | 'ok' | 'unreachable';
 const HEALTH_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000/api').replace(/\/api$/, '/health');
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
-const formatAmount = (amount: number) => `${amount.toLocaleString('en-US')} ₫`;
 
 interface CategoryBreakdown {
   categoryId: number;
@@ -29,6 +30,7 @@ interface CategoryBreakdown {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { t, formatCurrency } = useLanguage();
   const [status, setStatus] = useState<HealthStatus>('checking');
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -64,7 +66,7 @@ export default function Dashboard() {
         const category = categories.find((c) => c.categoryId === e.categoryId);
         acc[e.categoryId] = {
           categoryId: e.categoryId,
-          label: category ? getCategoryLabel(category) : 'Unknown',
+          label: category ? getCategoryLabel(category, t) : t('unknown'),
           amount: 0,
         };
       }
@@ -75,28 +77,32 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ p: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <LanguageSwitcher />
+      </Box>
+
       <Typography variant="h4" gutterBottom>
         VNDtracker
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Signed in as {user?.name} ({user?.email})
+        {t('signedInAs')} {user?.name} ({user?.email})
       </Typography>
       <Button variant="outlined" size="small" onClick={handleLogout} sx={{ mb: 3 }}>
-        Logout
+        {t('logout')}
       </Button>
       <Typography variant="body1" gutterBottom>
         <Link component={RouterLink} to="/expenses">
-          Expenses
+          {t('expenses')}
         </Link>
         {' · '}
         <Link component={RouterLink} to="/categories">
-          Manage categories
+          {t('manageCategories')}
         </Link>
       </Typography>
 
       <Box sx={{ mt: 4, maxWidth: 600 }}>
         <Typography variant="h6" gutterBottom>
-          This month
+          {t('thisMonth')}
         </Typography>
 
         {loading ? (
@@ -105,12 +111,12 @@ export default function Dashboard() {
           </Box>
         ) : expenses.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            No expenses yet this month.
+            {t('noExpensesThisMonth')}
           </Typography>
         ) : (
           <>
             <Typography variant="h3" gutterBottom>
-              {formatAmount(total)}
+              {formatCurrency(total)}
             </Typography>
 
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -139,7 +145,7 @@ export default function Dashboard() {
                   }}
                 >
                   <Typography variant="body2">{b.label}</Typography>
-                  <Typography variant="body2">{formatAmount(b.amount)}</Typography>
+                  <Typography variant="body2">{formatCurrency(b.amount)}</Typography>
                 </Box>
               ))}
             </Box>
@@ -148,10 +154,10 @@ export default function Dashboard() {
       </Box>
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>
-        Backend connection status:
+        {t('backendStatus')}
       </Typography>
       <Chip
-        label={status === 'checking' ? 'Checking...' : status === 'ok' ? 'Connected' : 'Unreachable'}
+        label={status === 'checking' ? t('checking') : status === 'ok' ? t('connected') : t('unreachable')}
         color={status === 'ok' ? 'success' : status === 'unreachable' ? 'error' : 'default'}
         size="small"
       />

@@ -1,0 +1,73 @@
+export const en = {
+  // common
+  back: 'Back',
+  checking: 'Checking...',
+  connected: 'Connected',
+  unreachable: 'Unreachable',
+  backendStatus: 'Backend connection status:',
+  cancel: 'Cancel',
+  add: 'Add',
+  unknown: 'Unknown',
+
+  // auth
+  signInSubtitle: 'Sign in to your account',
+  createAccountSubtitle: 'Create your account',
+  email: 'Email',
+  password: 'Password',
+  name: 'Name',
+  signIn: 'Sign In',
+  createAccount: 'Create account',
+  noAccountYet: 'No account yet?',
+  register: 'Register',
+  alreadyHaveAccount: 'Already have an account?',
+  signInLink: 'Sign in',
+  fillAllFields: 'Please fill in all fields',
+  passwordHelper: 'At least 6 characters',
+  loginFailed: 'Login failed',
+  invalidCredentialsFallback: 'Invalid email or password',
+  registrationFailed: 'Registration failed',
+
+  // dashboard
+  signedInAs: 'Signed in as',
+  logout: 'Logout',
+  expenses: 'Expenses',
+  manageCategories: 'Manage categories',
+  thisMonth: 'This month',
+  noExpensesThisMonth: 'No expenses yet this month.',
+
+  // categories
+  categoriesTitle: 'Categories',
+  newCategory: 'New category',
+  default: 'Default',
+  failedLoadCategories: 'Failed to load categories',
+  failedAddCategory: 'Failed to add category',
+  failedUpdateCategory: 'Failed to update category',
+  failedDeleteCategory: 'Failed to delete category',
+
+  // expenses
+  expensesTitle: 'Expenses',
+  month: 'Month',
+  category: 'Category',
+  allCategories: 'All categories',
+  addExpenseButton: '+ Add expense',
+  addExpenseTitle: 'Add expense',
+  editExpenseTitle: 'Edit expense',
+  amount: 'Amount',
+  date: 'Date',
+  note: 'Note (optional)',
+  update: 'Update',
+  total: 'Total',
+  noExpensesForFilter: 'No expenses for this filter',
+  failedLoadExpenses: 'Failed to load expenses',
+  failedAddExpense: 'Failed to add expense',
+  failedUpdateExpense: 'Failed to update expense',
+  failedDeleteExpense: 'Failed to delete expense',
+
+  // default category names (nameKey -> label)
+  category_food: 'Food & Drink',
+  category_transport: 'Transport',
+  category_bills: 'Bills & Utilities',
+  category_entertainment: 'Entertainment',
+  category_shopping: 'Shopping',
+  category_other: 'Other',
+} as const;

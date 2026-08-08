@@ -24,12 +24,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { getExpensesApi, createExpenseApi, updateExpenseApi, deleteExpenseApi } from '../api/expense';
 import { getCategoriesApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
+import { useLanguage } from '../i18n';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import type { Category, Expense } from '../types';
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
 const today = () => new Date().toISOString().slice(0, 10);
-
-const formatAmount = (amount: number) => `${amount.toLocaleString('en-US')} ₫`;
 
 const emptyForm = {
   categoryId: '',
@@ -39,6 +39,7 @@ const emptyForm = {
 };
 
 export default function Expenses() {
+  const { t, formatCurrency, currencySymbol } = useLanguage();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +67,7 @@ export default function Expenses() {
       });
       setExpenses(res.data);
     } catch {
-      setError('Failed to load expenses');
+      setError(t('failedLoadExpenses'));
     } finally {
       setLoading(false);
     }
@@ -74,6 +75,7 @@ export default function Expenses() {
 
   useEffect(() => {
     loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -120,7 +122,7 @@ export default function Expenses() {
 
       await loadExpenses();
     } catch {
-      setError(editingId ? 'Failed to update expense' : 'Failed to add expense');
+      setError(editingId ? t('failedUpdateExpense') : t('failedAddExpense'));
     } finally {
       setSaving(false);
     }
@@ -144,25 +146,28 @@ export default function Expenses() {
       if (editingId === expenseId) closeForm();
       await loadExpenses();
     } catch {
-      setError('Failed to delete expense');
+      setError(t('failedDeleteExpense'));
     }
   };
 
   const categoryLabelById = (categoryId: number) => {
     const category = categories.find((c) => c.categoryId === categoryId);
-    return category ? getCategoryLabel(category) : 'Unknown';
+    return category ? getCategoryLabel(category, t) : t('unknown');
   };
 
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
 
   return (
     <Box sx={{ p: 4, maxWidth: 600 }}>
-      <Link component={RouterLink} to="/" variant="body2">
-        Back
-      </Link>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Link component={RouterLink} to="/" variant="body2">
+          {t('back')}
+        </Link>
+        <LanguageSwitcher />
+      </Box>
 
       <Typography variant="h4" gutterBottom sx={{ mt: 2 }}>
-        Expenses
+        {t('expensesTitle')}
       </Typography>
 
       {error && (
@@ -173,7 +178,7 @@ export default function Expenses() {
 
       <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
         <TextField
-          label="Month"
+          label={t('month')}
           type="month"
           size="small"
           value={monthFilter}
@@ -181,17 +186,17 @@ export default function Expenses() {
           InputLabelProps={{ shrink: true }}
         />
         <FormControl size="small" sx={{ minWidth: 180 }}>
-          <InputLabel id="category-filter-label">Category</InputLabel>
+          <InputLabel id="category-filter-label">{t('category')}</InputLabel>
           <Select
             labelId="category-filter-label"
-            label="Category"
+            label={t('category')}
             value={categoryFilter}
             onChange={(e: SelectChangeEvent) => setCategoryFilter(e.target.value)}
           >
-            <MenuItem value="">All categories</MenuItem>
+            <MenuItem value="">{t('allCategories')}</MenuItem>
             {categories.map((c) => (
               <MenuItem key={c.categoryId} value={String(c.categoryId)}>
-                {getCategoryLabel(c)}
+                {getCategoryLabel(c, t)}
               </MenuItem>
             ))}
           </Select>
@@ -201,12 +206,12 @@ export default function Expenses() {
       {showForm ? (
         <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, mb: 3 }}>
           <Typography variant="subtitle2" gutterBottom>
-            {editingId ? 'Edit expense' : 'Add expense'}
+            {editingId ? t('editExpenseTitle') : t('addExpenseTitle')}
           </Typography>
           <Stack spacing={2}>
             <Stack direction="row" spacing={2}>
               <TextField
-                label="Amount (₫)"
+                label={`${t('amount')} (${currencySymbol})`}
                 type="number"
                 size="small"
                 fullWidth
@@ -216,7 +221,7 @@ export default function Expenses() {
                 autoFocus
               />
               <TextField
-                label="Date"
+                label={t('date')}
                 type="date"
                 size="small"
                 fullWidth
@@ -227,23 +232,23 @@ export default function Expenses() {
               />
             </Stack>
             <FormControl size="small" fullWidth>
-              <InputLabel id="category-form-label">Category</InputLabel>
+              <InputLabel id="category-form-label">{t('category')}</InputLabel>
               <Select
                 labelId="category-form-label"
-                label="Category"
+                label={t('category')}
                 value={form.categoryId}
                 onChange={(e: SelectChangeEvent) => setForm({ ...form, categoryId: e.target.value })}
                 disabled={saving}
               >
                 {categories.map((c) => (
                   <MenuItem key={c.categoryId} value={String(c.categoryId)}>
-                    {getCategoryLabel(c)}
+                    {getCategoryLabel(c, t)}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
             <TextField
-              label="Note (optional)"
+              label={t('note')}
               size="small"
               fullWidth
               value={form.note}
@@ -256,17 +261,17 @@ export default function Expenses() {
                 onClick={handleSubmit}
                 disabled={saving || !form.categoryId || !form.amount || !form.expenseDate}
               >
-                {editingId ? 'Update' : 'Add'}
+                {editingId ? t('update') : t('add')}
               </Button>
               <Button variant="outlined" onClick={closeForm} disabled={saving}>
-                Cancel
+                {t('cancel')}
               </Button>
             </Stack>
           </Stack>
         </Box>
       ) : (
         <Button variant="contained" onClick={openAddForm} sx={{ mb: 3 }}>
-          + Add expense
+          {t('addExpenseButton')}
         </Button>
       )}
 
@@ -277,12 +282,12 @@ export default function Expenses() {
       ) : (
         <>
           <Typography variant="subtitle1" gutterBottom>
-            Total: {formatAmount(total)}
+            {t('total')}: {formatCurrency(total)}
           </Typography>
           <List sx={{ border: '1px solid #e0e0e0', borderRadius: 2, py: 0 }}>
             {expenses.length === 0 && (
               <ListItem>
-                <ListItemText primary="No expenses for this filter" />
+                <ListItemText primary={t('noExpensesForFilter')} />
               </ListItem>
             )}
             {expenses.map((expense) => (
@@ -301,7 +306,7 @@ export default function Expenses() {
                 }
               >
                 <ListItemText
-                  primary={`${formatAmount(expense.amount)} — ${categoryLabelById(expense.categoryId)}`}
+                  primary={`${formatCurrency(expense.amount)} — ${categoryLabelById(expense.categoryId)}`}
                   secondary={`${expense.expenseDate.slice(0, 10)}${expense.note ? ' — ' + expense.note : ''}`}
                 />
               </ListItem>
