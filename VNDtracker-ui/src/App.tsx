@@ -5,6 +5,7 @@ import { theme } from './theme/theme';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import Categories from './pages/Categories';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -20,6 +21,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute>
+                <Categories />
               </ProtectedRoute>
             }
           />

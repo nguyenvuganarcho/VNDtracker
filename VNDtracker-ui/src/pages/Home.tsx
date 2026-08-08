@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
 import axios from 'axios';
 import { getUser, removeToken } from '../utils/auth';
 
@@ -39,6 +40,11 @@ export default function Home() {
       <Button variant="outlined" size="small" onClick={handleLogout} sx={{ mb: 3 }}>
         Logout
       </Button>
+      <Typography variant="body1" gutterBottom>
+        <Link component={RouterLink} to="/categories">
+          Manage categories
+        </Link>
+      </Typography>
       <Typography variant="body1" gutterBottom>
         Backend connection status:
       </Typography>
