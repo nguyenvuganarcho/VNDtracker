@@ -70,6 +70,8 @@ export interface CreateExpenseRequest {
 export interface ExpenseFilters {
   month?: string;
   categoryId?: number;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface ScanReceiptResult {

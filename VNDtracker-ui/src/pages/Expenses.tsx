@@ -155,6 +155,27 @@ export default function Expenses() {
 
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
 
+  // Exports exactly what's currently filtered/visible, not a separate re-fetch.
+  const exportCsv = () => {
+    const escapeCsvField = (field: string) => `"${field.replace(/"/g, '""')}"`;
+    const headers = [t('date'), t('category'), t('amount'), t('note')];
+    const rows = expenses.map((e) => [
+      e.expenseDate.slice(0, 10),
+      categoryLabelById(e.categoryId),
+      String(e.amount),
+      e.note || '',
+    ]);
+    const csvContent = [headers, ...rows].map((row) => row.map(escapeCsvField).join(',')).join('\r\n');
+    // Leading BOM so Excel renders Vietnamese diacritics correctly instead of mojibake.
+    const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `vndtracker-expenses-${monthFilter || 'all'}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Box sx={{ maxWidth: 700 }}>
       <Typography variant="h4" gutterBottom>
@@ -278,9 +299,14 @@ export default function Expenses() {
         </Box>
       ) : (
         <>
-          <Typography variant="subtitle1" gutterBottom>
-            {t('total')}: {formatCurrency(total)}
-          </Typography>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+            <Typography variant="subtitle1">
+              {t('total')}: {formatCurrency(total)}
+            </Typography>
+            <Button variant="outlined" size="small" onClick={exportCsv} disabled={expenses.length === 0}>
+              {t('exportCsv')}
+            </Button>
+          </Stack>
           <List sx={{ border: '1px solid #e0e0e0', borderRadius: 2, py: 0, maxHeight: 480, overflowY: 'auto' }}>
             {expenses.length === 0 && (
               <ListItem>

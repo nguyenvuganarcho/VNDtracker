@@ -39,6 +39,7 @@ export const vi: Record<keyof typeof en, string> = {
   getStartedNote: 'Thêm khoản chi thủ công, hoặc quét hoá đơn để AI tự điền.',
   recentExpenses: 'Chi tiêu gần đây',
   viewAll: 'Xem tất cả',
+  spendingTrend: 'Xu hướng chi tiêu (6 tháng gần đây)',
 
   categoriesTitle: 'Danh mục',
   newCategory: 'Danh mục mới',
@@ -61,6 +62,7 @@ export const vi: Record<keyof typeof en, string> = {
   update: 'Cập nhật',
   total: 'Tổng',
   noExpensesForFilter: 'Không có khoản chi nào khớp bộ lọc',
+  exportCsv: 'Xuất CSV',
   failedLoadExpenses: 'Không tải được chi tiêu',
   failedAddExpense: 'Không thêm được khoản chi',
   failedUpdateExpense: 'Không cập nhật được khoản chi',

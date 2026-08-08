@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { PieChart } from '@mui/x-charts/PieChart';
+import { LineChart } from '@mui/x-charts/LineChart';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
@@ -25,6 +26,27 @@ type HealthStatus = 'checking' | 'ok' | 'unreachable';
 const HEALTH_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000/api').replace(/\/api$/, '/health');
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
+const today = () => new Date().toISOString().slice(0, 10);
+
+// Last 6 months as "YYYY-MM" labels, oldest first, always including the
+// current month even if it has no expenses yet.
+const last6Months = (): string[] => {
+  const months: string[] = [];
+  const base = new Date();
+  base.setDate(1);
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
+    months.push(d.toISOString().slice(0, 7));
+  }
+  return months;
+};
+
+const sixMonthsAgoStart = () => {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - 5);
+  return d.toISOString().slice(0, 10);
+};
 
 interface CategoryBreakdown {
   categoryId: number;
@@ -33,10 +55,11 @@ interface CategoryBreakdown {
 }
 
 export default function Dashboard() {
-  const { t, formatCurrency } = useLanguage();
+  const { t, language, formatCurrency } = useLanguage();
   const [status, setStatus] = useState<HealthStatus>('checking');
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [trendExpenses, setTrendExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,10 +70,15 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    Promise.all([getExpensesApi({ month: currentMonth() }), getCategoriesApi()])
-      .then(([expensesRes, categoriesRes]) => {
+    Promise.all([
+      getExpensesApi({ month: currentMonth() }),
+      getCategoriesApi(),
+      getExpensesApi({ startDate: sixMonthsAgoStart(), endDate: today() }),
+    ])
+      .then(([expensesRes, categoriesRes, trendRes]) => {
         setExpenses(expensesRes.data);
         setCategories(categoriesRes.data);
+        setTrendExpenses(trendRes.data);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -75,6 +103,21 @@ export default function Dashboard() {
   const recentExpenses = [...expenses]
     .sort((a, b) => b.expenseDate.localeCompare(a.expenseDate) || b.createdAt.localeCompare(a.createdAt))
     .slice(0, 5);
+
+  const monthLabels = last6Months();
+  const monthTotals = trendExpenses.reduce((acc, e) => {
+    const month = e.expenseDate.slice(0, 7);
+    acc[month] = (acc[month] || 0) + e.amount;
+    return acc;
+  }, {} as Record<string, number>);
+  const trendValues = monthLabels.map((m) => monthTotals[m] || 0);
+  const trendLabels = monthLabels.map((m) => {
+    const [y, mo] = m.split('-').map(Number);
+    return new Date(y, mo - 1, 1).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US', {
+      month: 'short',
+      year: '2-digit',
+    });
+  });
 
   return (
     <Box sx={{ maxWidth: 960 }}>
@@ -173,6 +216,20 @@ export default function Dashboard() {
             </Link>
           </Box>
         </Stack>
+      )}
+
+      {!loading && (
+        <Box sx={{ mt: 4, maxWidth: '100%', overflowX: 'auto' }}>
+          <Typography variant="h6" gutterBottom>
+            {t('spendingTrend')}
+          </Typography>
+          <LineChart
+            xAxis={[{ scaleType: 'point', data: trendLabels }]}
+            series={[{ data: trendValues, color: '#000000', valueFormatter: (v) => formatCurrency(v ?? 0) }]}
+            width={700}
+            height={220}
+          />
+        </Box>
       )}
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>

@@ -38,6 +38,7 @@ export const en = {
   getStartedNote: 'Add an expense by hand, or scan a receipt to let AI fill it in.',
   recentExpenses: 'Recent expenses',
   viewAll: 'View all',
+  spendingTrend: 'Spending trend (last 6 months)',
 
   // categories
   categoriesTitle: 'Categories',
@@ -62,6 +63,7 @@ export const en = {
   update: 'Update',
   total: 'Total',
   noExpensesForFilter: 'No expenses for this filter',
+  exportCsv: 'Export CSV',
   failedLoadExpenses: 'Failed to load expenses',
   failedAddExpense: 'Failed to add expense',
   failedUpdateExpense: 'Failed to update expense',
