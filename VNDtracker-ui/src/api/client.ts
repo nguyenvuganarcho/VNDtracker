@@ -24,7 +24,12 @@ client.interceptors.request.use(
 client.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Only force logout when a request that carried a token got rejected
+    // (expired/invalid session). A 401 from /auth/login or /auth/register
+    // itself (wrong credentials) never carries a token and must be left
+    // for the calling page to display as a normal form error.
+    const hadAuthHeader = Boolean(error.config?.headers?.Authorization);
+    if (error.response?.status === 401 && hadAuthHeader) {
       removeToken();
       window.location.href = '/login';
     }
