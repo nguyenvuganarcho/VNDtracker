@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -12,7 +11,6 @@ import {
   Chip,
   Alert,
   CircularProgress,
-  Link,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -21,7 +19,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import { getCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { useLanguage } from '../i18n';
-import LanguageSwitcher from '../components/LanguageSwitcher';
 import type { Category } from '../types';
 
 export default function Categories() {
@@ -104,15 +101,8 @@ export default function Categories() {
   };
 
   return (
-    <Box sx={{ p: 4, maxWidth: 500 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link component={RouterLink} to="/" variant="body2">
-          {t('back')}
-        </Link>
-        <LanguageSwitcher />
-      </Box>
-
-      <Typography variant="h4" gutterBottom sx={{ mt: 2 }}>
+    <Box sx={{ maxWidth: 500 }}>
+      <Typography variant="h4" gutterBottom>
         {t('categoriesTitle')}
       </Typography>
 

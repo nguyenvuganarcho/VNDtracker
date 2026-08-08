@@ -1,6 +1,5 @@
 export const en = {
   // common
-  back: 'Back',
   checking: 'Checking...',
   connected: 'Connected',
   unreachable: 'Unreachable',
@@ -8,6 +7,9 @@ export const en = {
   cancel: 'Cancel',
   add: 'Add',
   unknown: 'Unknown',
+  language: 'Language',
+  currency: 'Currency',
+  currencyNote: 'Display symbol only — amounts are always in VND.',
 
   // auth
   signInSubtitle: 'Sign in to your account',
@@ -27,11 +29,10 @@ export const en = {
   invalidCredentialsFallback: 'Invalid email or password',
   registrationFailed: 'Registration failed',
 
-  // dashboard
-  signedInAs: 'Signed in as',
+  // nav / dashboard
+  dashboard: 'Dashboard',
   logout: 'Logout',
   expenses: 'Expenses',
-  manageCategories: 'Manage categories',
   thisMonth: 'This month',
   noExpensesThisMonth: 'No expenses yet this month.',
 

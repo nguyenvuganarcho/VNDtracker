@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { PieChart } from '@mui/x-charts/PieChart';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
-import Button from '@mui/material/Button';
-import Link from '@mui/material/Link';
 import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
-import { getUser, removeToken } from '../utils/auth';
 import { getExpensesApi } from '../api/expense';
 import { getCategoriesApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { useLanguage } from '../i18n';
-import LanguageSwitcher from '../components/LanguageSwitcher';
 import type { Category, Expense } from '../types';
 
 type HealthStatus = 'checking' | 'ok' | 'unreachable';
@@ -29,13 +24,11 @@ interface CategoryBreakdown {
 }
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const { t, formatCurrency } = useLanguage();
   const [status, setStatus] = useState<HealthStatus>('checking');
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const user = getUser();
 
   useEffect(() => {
     axios
@@ -52,11 +45,6 @@ export default function Dashboard() {
       })
       .finally(() => setLoading(false));
   }, []);
-
-  const handleLogout = () => {
-    removeToken();
-    navigate('/login');
-  };
 
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
 
@@ -76,82 +64,57 @@ export default function Dashboard() {
   ).sort((a, b) => b.amount - a.amount);
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <LanguageSwitcher />
-      </Box>
-
-      <Typography variant="h4" gutterBottom>
-        VNDtracker
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        {t('signedInAs')} {user?.name} ({user?.email})
-      </Typography>
-      <Button variant="outlined" size="small" onClick={handleLogout} sx={{ mb: 3 }}>
-        {t('logout')}
-      </Button>
-      <Typography variant="body1" gutterBottom>
-        <Link component={RouterLink} to="/expenses">
-          {t('expenses')}
-        </Link>
-        {' · '}
-        <Link component={RouterLink} to="/categories">
-          {t('manageCategories')}
-        </Link>
+    <Box sx={{ maxWidth: 600 }}>
+      <Typography variant="h6" gutterBottom>
+        {t('thisMonth')}
       </Typography>
 
-      <Box sx={{ mt: 4, maxWidth: 600 }}>
-        <Typography variant="h6" gutterBottom>
-          {t('thisMonth')}
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : expenses.length === 0 ? (
+        <Typography variant="body2" color="text.secondary">
+          {t('noExpensesThisMonth')}
         </Typography>
-
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : expenses.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            {t('noExpensesThisMonth')}
+      ) : (
+        <>
+          <Typography variant="h3" gutterBottom>
+            {formatCurrency(total)}
           </Typography>
-        ) : (
-          <>
-            <Typography variant="h3" gutterBottom>
-              {formatCurrency(total)}
-            </Typography>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <PieChart
-                series={[
-                  {
-                    data: breakdown.map((b) => ({ id: b.categoryId, value: b.amount, label: b.label })),
-                    innerRadius: 40,
-                  },
-                ]}
-                width={400}
-                height={240}
-              />
-            </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <PieChart
+              series={[
+                {
+                  data: breakdown.map((b) => ({ id: b.categoryId, value: b.amount, label: b.label })),
+                  innerRadius: 40,
+                },
+              ]}
+              width={400}
+              height={240}
+            />
+          </Box>
 
-            <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, mt: 2 }}>
-              {breakdown.map((b, i) => (
-                <Box
-                  key={b.categoryId}
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    px: 2,
-                    py: 1,
-                    borderTop: i === 0 ? 'none' : '1px solid #e0e0e0',
-                  }}
-                >
-                  <Typography variant="body2">{b.label}</Typography>
-                  <Typography variant="body2">{formatCurrency(b.amount)}</Typography>
-                </Box>
-              ))}
-            </Box>
-          </>
-        )}
-      </Box>
+          <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, mt: 2 }}>
+            {breakdown.map((b, i) => (
+              <Box
+                key={b.categoryId}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  px: 2,
+                  py: 1,
+                  borderTop: i === 0 ? 'none' : '1px solid #e0e0e0',
+                }}
+              >
+                <Typography variant="body2">{b.label}</Typography>
+                <Typography variant="body2">{formatCurrency(b.amount)}</Typography>
+              </Box>
+            ))}
+          </Box>
+        </>
+      )}
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>
         {t('backendStatus')}

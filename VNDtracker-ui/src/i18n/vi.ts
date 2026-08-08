@@ -3,7 +3,6 @@ import type { en } from './en';
 // Record<keyof typeof en, string> forces every key in en.ts to have a
 // Vietnamese counterpart here -- a missing translation is a compile error.
 export const vi: Record<keyof typeof en, string> = {
-  back: 'Quay lại',
   checking: 'Đang kiểm tra...',
   connected: 'Đã kết nối',
   unreachable: 'Không kết nối được',
@@ -11,6 +10,9 @@ export const vi: Record<keyof typeof en, string> = {
   cancel: 'Huỷ',
   add: 'Thêm',
   unknown: 'Không xác định',
+  language: 'Ngôn ngữ',
+  currency: 'Đơn vị tiền',
+  currencyNote: 'Chỉ đổi ký hiệu hiển thị — số tiền luôn tính theo VND.',
 
   signInSubtitle: 'Đăng nhập vào tài khoản',
   createAccountSubtitle: 'Tạo tài khoản mới',
@@ -29,10 +31,9 @@ export const vi: Record<keyof typeof en, string> = {
   invalidCredentialsFallback: 'Email hoặc mật khẩu không đúng',
   registrationFailed: 'Đăng ký thất bại',
 
-  signedInAs: 'Đăng nhập với',
+  dashboard: 'Tổng quan',
   logout: 'Đăng xuất',
   expenses: 'Chi tiêu',
-  manageCategories: 'Quản lý danh mục',
   thisMonth: 'Tháng này',
   noExpensesThisMonth: 'Chưa có khoản chi nào trong tháng này.',
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -11,7 +10,6 @@ import {
   Button,
   Alert,
   CircularProgress,
-  Link,
   MenuItem,
   Select,
   InputLabel,
@@ -25,7 +23,6 @@ import { getExpensesApi, createExpenseApi, updateExpenseApi, deleteExpenseApi } 
 import { getCategoriesApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { useLanguage } from '../i18n';
-import LanguageSwitcher from '../components/LanguageSwitcher';
 import type { Category, Expense } from '../types';
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
@@ -158,15 +155,8 @@ export default function Expenses() {
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
 
   return (
-    <Box sx={{ p: 4, maxWidth: 600 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link component={RouterLink} to="/" variant="body2">
-          {t('back')}
-        </Link>
-        <LanguageSwitcher />
-      </Box>
-
-      <Typography variant="h4" gutterBottom sx={{ mt: 2 }}>
+    <Box sx={{ maxWidth: 600 }}>
+      <Typography variant="h4" gutterBottom>
         {t('expensesTitle')}
       </Typography>
 
