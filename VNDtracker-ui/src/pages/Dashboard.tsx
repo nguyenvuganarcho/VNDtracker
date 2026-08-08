@@ -120,7 +120,7 @@ export default function Dashboard() {
   });
 
   return (
-    <Box sx={{ maxWidth: 960 }}>
+    <Box sx={{ maxWidth: 960, mx: 'auto' }}>
       <Typography variant="h6" gutterBottom>
         {t('thisMonth')}
       </Typography>

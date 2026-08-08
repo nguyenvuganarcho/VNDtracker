@@ -177,7 +177,7 @@ export default function Expenses() {
   };
 
   return (
-    <Box sx={{ maxWidth: 700 }}>
+    <Box sx={{ maxWidth: 700, mx: 'auto' }}>
       <Typography variant="h4" gutterBottom>
         {t('expensesTitle')}
       </Typography>

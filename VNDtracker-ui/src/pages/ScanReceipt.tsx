@@ -110,7 +110,7 @@ export default function ScanReceipt() {
   };
 
   return (
-    <Box sx={{ maxWidth: 500 }}>
+    <Box sx={{ maxWidth: 500, mx: 'auto' }}>
       <Typography variant="h4" gutterBottom>
         {t('scanReceipt')}
       </Typography>

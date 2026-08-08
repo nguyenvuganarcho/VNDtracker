@@ -102,7 +102,7 @@ export default function Categories() {
   };
 
   return (
-    <Box sx={{ maxWidth: 600 }}>
+    <Box sx={{ maxWidth: 600, mx: 'auto' }}>
       <Typography variant="h4" gutterBottom>
         {t('categoriesTitle')}
       </Typography>
