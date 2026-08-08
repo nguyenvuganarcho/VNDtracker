@@ -3,10 +3,6 @@ import type { en } from './en';
 // Record<keyof typeof en, string> forces every key in en.ts to have a
 // Vietnamese counterpart here -- a missing translation is a compile error.
 export const vi: Record<keyof typeof en, string> = {
-  checking: 'Đang kiểm tra...',
-  connected: 'Đã kết nối',
-  unreachable: 'Không kết nối được',
-  backendStatus: 'Trạng thái kết nối backend:',
   cancel: 'Huỷ',
   add: 'Thêm',
   unknown: 'Không xác định',

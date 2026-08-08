@@ -1,9 +1,5 @@
 export const en = {
   // common
-  checking: 'Checking...',
-  connected: 'Connected',
-  unreachable: 'Unreachable',
-  backendStatus: 'Backend connection status:',
   cancel: 'Cancel',
   add: 'Add',
   unknown: 'Unknown',

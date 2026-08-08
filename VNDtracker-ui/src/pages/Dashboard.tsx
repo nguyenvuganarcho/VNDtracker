@@ -4,7 +4,6 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import { LineChart } from '@mui/x-charts/LineChart';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
@@ -12,7 +11,6 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
-import axios from 'axios';
 import { getExpensesApi } from '../api/expense';
 import { getCategoriesApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
@@ -20,10 +18,6 @@ import { getCategoryColor } from '../utils/categoryColor';
 import CategoryDot from '../components/CategoryDot';
 import { useLanguage } from '../i18n';
 import type { Category, Expense } from '../types';
-
-type HealthStatus = 'checking' | 'ok' | 'unreachable';
-
-const HEALTH_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000/api').replace(/\/api$/, '/health');
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
 const today = () => new Date().toISOString().slice(0, 10);
@@ -56,18 +50,10 @@ interface CategoryBreakdown {
 
 export default function Dashboard() {
   const { t, language, formatCurrency } = useLanguage();
-  const [status, setStatus] = useState<HealthStatus>('checking');
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [trendExpenses, setTrendExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    axios
-      .get(HEALTH_URL)
-      .then(() => setStatus('ok'))
-      .catch(() => setStatus('unreachable'));
-  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -231,15 +217,6 @@ export default function Dashboard() {
           />
         </Box>
       )}
-
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>
-        {t('backendStatus')}
-      </Typography>
-      <Chip
-        label={status === 'checking' ? t('checking') : status === 'ok' ? t('connected') : t('unreachable')}
-        color={status === 'ok' ? 'success' : status === 'unreachable' ? 'error' : 'default'}
-        size="small"
-      />
     </Box>
   );
 }
