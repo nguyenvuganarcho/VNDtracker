@@ -9,7 +9,7 @@ export const en = {
   unknown: 'Unknown',
   language: 'Language',
   currency: 'Currency',
-  currencyNote: 'Display symbol only — amounts are always in VND.',
+  currencyNote: 'Display symbol only.',
 
   // auth
   signInSubtitle: 'Sign in to your account',

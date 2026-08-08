@@ -12,7 +12,7 @@ export const vi: Record<keyof typeof en, string> = {
   unknown: 'Không xác định',
   language: 'Ngôn ngữ',
   currency: 'Đơn vị tiền',
-  currencyNote: 'Chỉ đổi ký hiệu hiển thị — số tiền luôn tính theo VND.',
+  currencyNote: 'Chỉ đổi ký hiệu hiển thị.',
 
   signInSubtitle: 'Đăng nhập vào tài khoản',
   createAccountSubtitle: 'Tạo tài khoản mới',
