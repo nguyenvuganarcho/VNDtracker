@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import fs from 'fs';
 import { AiService } from './ai.service';
 import { ApiResponse } from '../../common/apiResponse';
 import { ValidationError } from '../../common/errors';
 import { uploadReceiptImage } from '../../config/upload';
+import { saveReceiptImage } from '../../config/storage';
 
 export class AiController {
   private service: AiService;
@@ -32,11 +32,14 @@ export class AiController {
           throw new ValidationError([{ field: 'image', message: 'Image is required' }]);
         }
 
-        const imageBuffer = fs.readFileSync(req.file.path);
-        const result = await this.service.scanReceipt(req.user!.userId, imageBuffer, req.file.mimetype);
+        const imageBuffer = req.file.buffer;
+        const [result, receiptImagePath] = await Promise.all([
+          this.service.scanReceipt(req.user!.userId, imageBuffer, req.file.mimetype),
+          saveReceiptImage(imageBuffer, req.file.mimetype),
+        ]);
 
         return res.status(200).json(
-          ApiResponse.success('Scan complete', { ...result, receiptImagePath: `/uploads/${req.file.filename}` }, req.path)
+          ApiResponse.success('Scan complete', { ...result, receiptImagePath }, req.path)
         );
       } catch (e) {
         next(e);
