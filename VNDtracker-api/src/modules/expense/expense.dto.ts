@@ -17,6 +17,9 @@ export interface CreateExpenseDto {
   amount: number;
   expenseDate: string;
   note?: string;
+  source?: 'manual' | 'ai';
+  inputType?: 'bill' | 'transfer';
+  receiptImagePath?: string;
 }
 
 export interface UpdateExpenseDto {

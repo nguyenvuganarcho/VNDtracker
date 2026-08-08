@@ -50,7 +50,18 @@ export class ExpenseRepository {
     }
   }
 
-  async create(userId: number, dto: { categoryId: number; amount: number; expenseDate: string; note?: string }): Promise<Expense> {
+  async create(
+    userId: number,
+    dto: {
+      categoryId: number;
+      amount: number;
+      expenseDate: string;
+      note?: string;
+      source?: string;
+      inputType?: string;
+      receiptImagePath?: string;
+    }
+  ): Promise<Expense> {
     try {
       const pool = getPool();
       const result = await pool
@@ -60,11 +71,14 @@ export class ExpenseRepository {
         .input('amount', sql.BigInt, dto.amount)
         .input('expenseDate', sql.Date, dto.expenseDate)
         .input('note', sql.NVarChar, dto.note || null)
+        .input('source', sql.VarChar, dto.source || 'manual')
+        .input('inputType', sql.VarChar, dto.inputType || null)
+        .input('receiptImagePath', sql.NVarChar, dto.receiptImagePath || null)
         .query(`
-          INSERT INTO expenses (userId, categoryId, amount, expenseDate, note, source)
+          INSERT INTO expenses (userId, categoryId, amount, expenseDate, note, source, inputType, receiptImagePath)
           OUTPUT INSERTED.expenseId, INSERTED.userId, INSERTED.categoryId, INSERTED.amount, INSERTED.expenseDate,
                  INSERTED.note, INSERTED.receiptImagePath, INSERTED.source, INSERTED.inputType, INSERTED.createdAt, INSERTED.updatedAt
-          VALUES (@userId, @categoryId, @amount, @expenseDate, @note, 'manual')
+          VALUES (@userId, @categoryId, @amount, @expenseDate, @note, @source, @inputType, @receiptImagePath)
         `);
 
       return this.mapRow(result.recordset[0]);

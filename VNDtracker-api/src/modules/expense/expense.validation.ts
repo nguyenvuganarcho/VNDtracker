@@ -12,6 +12,9 @@ export const createExpenseSchema = Joi.object({
     'any.required': 'Date is required',
   }),
   note: Joi.string().max(500).allow('').optional(),
+  source: Joi.string().valid('manual', 'ai').optional(),
+  inputType: Joi.string().valid('bill', 'transfer').optional(),
+  receiptImagePath: Joi.string().max(500).optional(),
 });
 
 export const updateExpenseSchema = createExpenseSchema;

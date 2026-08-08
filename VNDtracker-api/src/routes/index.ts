@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { AuthController } from '../modules/auth/auth.controller';
 import { CategoryController } from '../modules/category/category.controller';
 import { ExpenseController } from '../modules/expense/expense.controller';
+import { AiController } from '../modules/ai/ai.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -21,5 +22,8 @@ router.get('/expenses', requireAuth, expenseController.getAll);
 router.post('/expenses', requireAuth, expenseController.create);
 router.put('/expenses/:id', requireAuth, expenseController.update);
 router.delete('/expenses/:id', requireAuth, expenseController.delete);
+
+const aiController = new AiController();
+router.post('/ai/scan', requireAuth, aiController.scan);
 
 export default router;

@@ -64,6 +64,17 @@ export const en = {
   failedUpdateExpense: 'Failed to update expense',
   failedDeleteExpense: 'Failed to delete expense',
 
+  // AI receipt scan
+  scanReceipt: 'Scan Receipt',
+  chooseImage: 'Choose image',
+  scanButton: 'Scan',
+  scanAiFailedNote: "Couldn't read this automatically — please check the details below.",
+  failedScan: 'Failed to upload image',
+  billType: 'Bill',
+  transferType: 'Bank transfer',
+  save: 'Save',
+  scanAnother: 'Scan another',
+
   // default category names (nameKey -> label)
   category_food: 'Food & Drink',
   category_transport: 'Transport',

@@ -62,9 +62,22 @@ export interface CreateExpenseRequest {
   amount: number;
   expenseDate: string;
   note?: string;
+  source?: 'manual' | 'ai';
+  inputType?: 'bill' | 'transfer';
+  receiptImagePath?: string;
 }
 
 export interface ExpenseFilters {
   month?: string;
   categoryId?: number;
+}
+
+export interface ScanReceiptResult {
+  aiReadable: boolean;
+  inputType: 'bill' | 'transfer' | null;
+  expenseDate: string | null;
+  amount: number | null;
+  note: string;
+  categoryId: number | null;
+  receiptImagePath: string;
 }

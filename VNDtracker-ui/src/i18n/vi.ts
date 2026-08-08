@@ -63,6 +63,16 @@ export const vi: Record<keyof typeof en, string> = {
   failedUpdateExpense: 'Không cập nhật được khoản chi',
   failedDeleteExpense: 'Không xoá được khoản chi',
 
+  scanReceipt: 'Quét hoá đơn',
+  chooseImage: 'Chọn ảnh',
+  scanButton: 'Quét',
+  scanAiFailedNote: 'Không tự đọc được ảnh này — vui lòng kiểm tra lại thông tin bên dưới.',
+  failedScan: 'Không tải được ảnh lên',
+  billType: 'Hoá đơn',
+  transferType: 'Chuyển khoản',
+  save: 'Lưu',
+  scanAnother: 'Quét ảnh khác',
+
   category_food: 'Ăn uống',
   category_transport: 'Di chuyển',
   category_bills: 'Hoá đơn & Tiện ích',
