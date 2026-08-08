@@ -50,6 +50,7 @@ export default function Expenses() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   const loadCategories = async () => {
     const res = await getCategoriesApi();
@@ -80,9 +81,19 @@ export default function Expenses() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthFilter, categoryFilter]);
 
-  const resetForm = () => {
+  // Prefill category from the active filter — if you're looking at "Food & Drink"
+  // and hit add, you almost certainly want another "Food & Drink" expense, not a
+  // second, separate category prompt.
+  const openAddForm = () => {
+    setEditingId(null);
+    setForm({ ...emptyForm, categoryId: categoryFilter });
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
     setForm(emptyForm);
     setEditingId(null);
+    setShowForm(false);
   };
 
   const handleSubmit = async () => {
@@ -100,11 +111,13 @@ export default function Expenses() {
 
       if (editingId) {
         await updateExpenseApi(editingId, dto);
+        closeForm();
       } else {
         await createExpenseApi(dto);
+        // Stay open for quick consecutive entries, keep the prefilled category.
+        setForm({ ...emptyForm, categoryId: form.categoryId });
       }
 
-      resetForm();
       await loadExpenses();
     } catch {
       setError(editingId ? 'Failed to update expense' : 'Failed to add expense');
@@ -121,13 +134,14 @@ export default function Expenses() {
       expenseDate: expense.expenseDate.slice(0, 10),
       note: expense.note || '',
     });
+    setShowForm(true);
   };
 
   const handleDelete = async (expenseId: number) => {
     setError('');
     try {
       await deleteExpenseApi(expenseId);
-      if (editingId === expenseId) resetForm();
+      if (editingId === expenseId) closeForm();
       await loadExpenses();
     } catch {
       setError('Failed to delete expense');
@@ -184,72 +198,77 @@ export default function Expenses() {
         </FormControl>
       </Stack>
 
-      <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, mb: 3 }}>
-        <Typography variant="subtitle2" gutterBottom>
-          {editingId ? 'Edit expense' : 'Add expense'}
-        </Typography>
-        <Stack spacing={2}>
-          <Stack direction="row" spacing={2}>
+      {showForm ? (
+        <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, mb: 3 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            {editingId ? 'Edit expense' : 'Add expense'}
+          </Typography>
+          <Stack spacing={2}>
+            <Stack direction="row" spacing={2}>
+              <TextField
+                label="Amount (₫)"
+                type="number"
+                size="small"
+                fullWidth
+                value={form.amount}
+                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                disabled={saving}
+                autoFocus
+              />
+              <TextField
+                label="Date"
+                type="date"
+                size="small"
+                fullWidth
+                value={form.expenseDate}
+                onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
+                InputLabelProps={{ shrink: true }}
+                disabled={saving}
+              />
+            </Stack>
+            <FormControl size="small" fullWidth>
+              <InputLabel id="category-form-label">Category</InputLabel>
+              <Select
+                labelId="category-form-label"
+                label="Category"
+                value={form.categoryId}
+                onChange={(e: SelectChangeEvent) => setForm({ ...form, categoryId: e.target.value })}
+                disabled={saving}
+              >
+                {categories.map((c) => (
+                  <MenuItem key={c.categoryId} value={String(c.categoryId)}>
+                    {getCategoryLabel(c)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
-              label="Amount (₫)"
-              type="number"
+              label="Note (optional)"
               size="small"
               fullWidth
-              value={form.amount}
-              onChange={(e) => setForm({ ...form, amount: e.target.value })}
+              value={form.note}
+              onChange={(e) => setForm({ ...form, note: e.target.value })}
               disabled={saving}
             />
-            <TextField
-              label="Date"
-              type="date"
-              size="small"
-              fullWidth
-              value={form.expenseDate}
-              onChange={(e) => setForm({ ...form, expenseDate: e.target.value })}
-              InputLabelProps={{ shrink: true }}
-              disabled={saving}
-            />
-          </Stack>
-          <FormControl size="small" fullWidth>
-            <InputLabel id="category-form-label">Category</InputLabel>
-            <Select
-              labelId="category-form-label"
-              label="Category"
-              value={form.categoryId}
-              onChange={(e: SelectChangeEvent) => setForm({ ...form, categoryId: e.target.value })}
-              disabled={saving}
-            >
-              {categories.map((c) => (
-                <MenuItem key={c.categoryId} value={String(c.categoryId)}>
-                  {getCategoryLabel(c)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label="Note (optional)"
-            size="small"
-            fullWidth
-            value={form.note}
-            onChange={(e) => setForm({ ...form, note: e.target.value })}
-            disabled={saving}
-          />
-          <Stack direction="row" spacing={1}>
-            <Button
-              variant="contained"
-              onClick={handleSubmit}
-              disabled={saving || !form.categoryId || !form.amount || !form.expenseDate}
-            >
-              {editingId ? 'Update' : 'Add'}
-            </Button>
-            {editingId && (
-              <Button variant="outlined" onClick={resetForm} disabled={saving}>
+            <Stack direction="row" spacing={1}>
+              <Button
+                variant="contained"
+                onClick={handleSubmit}
+                disabled={saving || !form.categoryId || !form.amount || !form.expenseDate}
+              >
+                {editingId ? 'Update' : 'Add'}
+              </Button>
+              <Button variant="outlined" onClick={closeForm} disabled={saving}>
                 Cancel
               </Button>
-            )}
+            </Stack>
           </Stack>
-        </Stack>
-      </Box>
+        </Box>
+      ) : (
+        <Button variant="contained" onClick={openAddForm} sx={{ mb: 3 }}>
+          + Add expense
+        </Button>
+      )}
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
