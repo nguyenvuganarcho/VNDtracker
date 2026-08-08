@@ -18,6 +18,7 @@ import { createExpenseApi } from '../api/expense';
 import { getCategoriesApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { useLanguage } from '../i18n';
+import CategoryDot from '../components/CategoryDot';
 import type { Category, ScanReceiptResult } from '../types';
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -196,7 +197,10 @@ export default function ScanReceipt() {
             >
               {categories.map((c) => (
                 <MenuItem key={c.categoryId} value={String(c.categoryId)}>
-                  {getCategoryLabel(c, t)}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CategoryDot categoryId={c.categoryId} size={8} />
+                    {getCategoryLabel(c, t)}
+                  </Box>
                 </MenuItem>
               ))}
             </Select>

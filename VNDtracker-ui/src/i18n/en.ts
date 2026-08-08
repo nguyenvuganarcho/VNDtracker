@@ -35,6 +35,9 @@ export const en = {
   expenses: 'Expenses',
   thisMonth: 'This month',
   noExpensesThisMonth: 'No expenses yet this month.',
+  getStartedNote: 'Add an expense by hand, or scan a receipt to let AI fill it in.',
+  recentExpenses: 'Recent expenses',
+  viewAll: 'View all',
 
   // categories
   categoriesTitle: 'Categories',

@@ -19,6 +19,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { getCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { useLanguage } from '../i18n';
+import CategoryDot from '../components/CategoryDot';
 import type { Category } from '../types';
 
 export default function Categories() {
@@ -101,7 +102,7 @@ export default function Categories() {
   };
 
   return (
-    <Box sx={{ maxWidth: 500 }}>
+    <Box sx={{ maxWidth: 600 }}>
       <Typography variant="h4" gutterBottom>
         {t('categoriesTitle')}
       </Typography>
@@ -171,7 +172,10 @@ export default function Categories() {
                   autoFocus
                 />
               ) : (
-                <ListItemText primary={getCategoryLabel(category, t)} />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <CategoryDot categoryId={category.categoryId} />
+                  <ListItemText primary={getCategoryLabel(category, t)} />
+                </Box>
               )}
             </ListItem>
           ))}

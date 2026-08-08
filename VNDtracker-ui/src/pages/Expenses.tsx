@@ -23,6 +23,7 @@ import { getExpensesApi, createExpenseApi, updateExpenseApi, deleteExpenseApi } 
 import { getCategoriesApi } from '../api/category';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { useLanguage } from '../i18n';
+import CategoryDot from '../components/CategoryDot';
 import type { Category, Expense } from '../types';
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
@@ -155,7 +156,7 @@ export default function Expenses() {
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
 
   return (
-    <Box sx={{ maxWidth: 600 }}>
+    <Box sx={{ maxWidth: 700 }}>
       <Typography variant="h4" gutterBottom>
         {t('expensesTitle')}
       </Typography>
@@ -186,7 +187,10 @@ export default function Expenses() {
             <MenuItem value="">{t('allCategories')}</MenuItem>
             {categories.map((c) => (
               <MenuItem key={c.categoryId} value={String(c.categoryId)}>
-                {getCategoryLabel(c, t)}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CategoryDot categoryId={c.categoryId} size={8} />
+                  {getCategoryLabel(c, t)}
+                </Box>
               </MenuItem>
             ))}
           </Select>
@@ -232,7 +236,10 @@ export default function Expenses() {
               >
                 {categories.map((c) => (
                   <MenuItem key={c.categoryId} value={String(c.categoryId)}>
-                    {getCategoryLabel(c, t)}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CategoryDot categoryId={c.categoryId} size={8} />
+                      {getCategoryLabel(c, t)}
+                    </Box>
                   </MenuItem>
                 ))}
               </Select>
@@ -274,7 +281,7 @@ export default function Expenses() {
           <Typography variant="subtitle1" gutterBottom>
             {t('total')}: {formatCurrency(total)}
           </Typography>
-          <List sx={{ border: '1px solid #e0e0e0', borderRadius: 2, py: 0 }}>
+          <List sx={{ border: '1px solid #e0e0e0', borderRadius: 2, py: 0, maxHeight: 480, overflowY: 'auto' }}>
             {expenses.length === 0 && (
               <ListItem>
                 <ListItemText primary={t('noExpensesForFilter')} />
@@ -295,7 +302,9 @@ export default function Expenses() {
                   </>
                 }
               >
+                <CategoryDot categoryId={expense.categoryId} />
                 <ListItemText
+                  sx={{ ml: 1.5 }}
                   primary={`${formatCurrency(expense.amount)} — ${categoryLabelById(expense.categoryId)}`}
                   secondary={`${expense.expenseDate.slice(0, 10)}${expense.note ? ' — ' + expense.note : ''}`}
                 />

@@ -36,6 +36,9 @@ export const vi: Record<keyof typeof en, string> = {
   expenses: 'Chi tiêu',
   thisMonth: 'Tháng này',
   noExpensesThisMonth: 'Chưa có khoản chi nào trong tháng này.',
+  getStartedNote: 'Thêm khoản chi thủ công, hoặc quét hoá đơn để AI tự điền.',
+  recentExpenses: 'Chi tiêu gần đây',
+  viewAll: 'Xem tất cả',
 
   categoriesTitle: 'Danh mục',
   newCategory: 'Danh mục mới',
