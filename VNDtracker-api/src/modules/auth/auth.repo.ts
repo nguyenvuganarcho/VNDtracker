@@ -35,4 +35,34 @@ export class AuthRepository {
       throw error;
     }
   }
+
+  async findById(userId: number): Promise<User | null> {
+    try {
+      const pool = getPool();
+      const result = await pool.query(
+        `SELECT "userId", "email", "passwordHash", "name", "createdAt"
+         FROM "users"
+         WHERE "userId" = $1`,
+        [userId]
+      );
+
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error finding user by id:', error);
+      throw error;
+    }
+  }
+
+  async updatePassword(userId: number, passwordHash: string): Promise<void> {
+    try {
+      const pool = getPool();
+      await pool.query(`UPDATE "users" SET "passwordHash" = $1 WHERE "userId" = $2`, [
+        passwordHash,
+        userId,
+      ]);
+    } catch (error) {
+      console.error('Error updating password:', error);
+      throw error;
+    }
+  }
 }

@@ -19,6 +19,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MenuIcon from '@mui/icons-material/Menu';
 import { getUser, removeToken } from '../utils/auth';
 import { useLanguage, type Language, type CurrencySymbol } from '../i18n';
+import ChangePasswordDialog from './ChangePasswordDialog';
 
 const NAV_ITEMS = [
   { labelKey: 'dashboard', path: '/' },
@@ -35,6 +36,7 @@ export default function Layout() {
 
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
   const handleLogout = () => {
     removeToken();
@@ -143,6 +145,14 @@ export default function Layout() {
             <MenuItem
               onClick={() => {
                 setMenuAnchor(null);
+                setChangePasswordOpen(true);
+              }}
+            >
+              {t('changePassword')}
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setMenuAnchor(null);
                 handleLogout();
               }}
             >
@@ -151,6 +161,11 @@ export default function Layout() {
           </Menu>
         </Toolbar>
       </AppBar>
+
+      <ChangePasswordDialog
+        open={changePasswordOpen}
+        onClose={() => setChangePasswordOpen(false)}
+      />
 
       <Drawer anchor="left" open={mobileNavOpen} onClose={() => setMobileNavOpen(false)}>
         <List sx={{ width: 220 }}>

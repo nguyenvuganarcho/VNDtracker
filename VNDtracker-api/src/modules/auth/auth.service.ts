@@ -4,6 +4,7 @@ import { AuthRepository } from './auth.repo';
 import {
   RegisterRequestDto,
   LoginRequestDto,
+  ChangePasswordRequestDto,
   AuthResponseDto,
   UserResponseDto,
   TokenPayload,
@@ -71,5 +72,20 @@ export class AuthService {
       accessToken: this.generateToken(user),
       user: this.toUserResponseDto(user),
     };
+  }
+
+  async changePassword(userId: number, dto: ChangePasswordRequestDto): Promise<void> {
+    const user = await this.repo.findById(userId);
+    if (!user) {
+      throw new UnauthorizedError('User not found');
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedError('Current password is incorrect');
+    }
+
+    const newPasswordHash = await bcrypt.hash(dto.newPassword, this.saltRounds);
+    await this.repo.updatePassword(userId, newPasswordHash);
   }
 }

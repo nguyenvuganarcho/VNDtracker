@@ -24,6 +24,13 @@ export const en = {
   loginFailed: 'Login failed',
   invalidCredentialsFallback: 'Invalid email or password',
   registrationFailed: 'Registration failed',
+  changePassword: 'Change password',
+  currentPassword: 'Current password',
+  newPassword: 'New password',
+  confirmNewPassword: 'Confirm new password',
+  passwordMismatch: 'New passwords do not match',
+  passwordChanged: 'Password changed successfully',
+  changePasswordFailed: 'Failed to change password',
 
   // nav / dashboard
   dashboard: 'Dashboard',

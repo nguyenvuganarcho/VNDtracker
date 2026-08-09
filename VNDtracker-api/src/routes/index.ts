@@ -10,6 +10,7 @@ const router = Router();
 const authController = new AuthController();
 router.post('/auth/register', authController.register);
 router.post('/auth/login', authController.login);
+router.put('/auth/change-password', requireAuth, authController.changePassword);
 
 const categoryController = new CategoryController();
 router.get('/categories', requireAuth, categoryController.getAll);

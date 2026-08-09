@@ -17,6 +17,11 @@ export interface LoginRequestDto {
   password: string;
 }
 
+export interface ChangePasswordRequestDto {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface UserResponseDto {
   userId: number;
   email: string;

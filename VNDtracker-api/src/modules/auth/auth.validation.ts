@@ -23,3 +23,13 @@ export const loginSchema = Joi.object({
     'string.empty': 'Password is required',
   }),
 });
+
+export const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string().required().messages({
+    'string.empty': 'Current password is required',
+  }),
+  newPassword: Joi.string().min(6).required().messages({
+    'string.empty': 'New password is required',
+    'string.min': 'New password must be at least 6 characters',
+  }),
+});

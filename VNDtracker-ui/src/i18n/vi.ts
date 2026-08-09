@@ -26,6 +26,13 @@ export const vi: Record<keyof typeof en, string> = {
   loginFailed: 'Đăng nhập thất bại',
   invalidCredentialsFallback: 'Email hoặc mật khẩu không đúng',
   registrationFailed: 'Đăng ký thất bại',
+  changePassword: 'Đổi mật khẩu',
+  currentPassword: 'Mật khẩu hiện tại',
+  newPassword: 'Mật khẩu mới',
+  confirmNewPassword: 'Xác nhận mật khẩu mới',
+  passwordMismatch: 'Mật khẩu mới không khớp',
+  passwordChanged: 'Đổi mật khẩu thành công',
+  changePasswordFailed: 'Đổi mật khẩu thất bại',
 
   dashboard: 'Tổng quan',
   logout: 'Đăng xuất',
