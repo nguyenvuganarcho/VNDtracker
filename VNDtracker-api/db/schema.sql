@@ -7,12 +7,17 @@
 -- identifiers to lowercase by default, which would otherwise force every
 -- DTO/type in the app to change too. Migrated from MSSQL 2026-08-08.
 
+-- passwordResetTokenHash stores a sha256 hash of the reset token, never the
+-- raw token -- the raw token only ever exists in the emailed link, so a DB
+-- leak alone can't be used to reset anyone's password.
 CREATE TABLE "users" (
-  "userId"        SERIAL PRIMARY KEY,
-  "email"         VARCHAR(255)  NOT NULL UNIQUE,
-  "passwordHash"  VARCHAR(255)  NOT NULL,
-  "name"          VARCHAR(100)  NOT NULL,
-  "createdAt"     TIMESTAMP     NOT NULL DEFAULT NOW()
+  "userId"                  SERIAL PRIMARY KEY,
+  "email"                   VARCHAR(255)  NOT NULL UNIQUE,
+  "passwordHash"            VARCHAR(255)  NOT NULL,
+  "name"                    VARCHAR(100)  NOT NULL,
+  "passwordResetTokenHash"  VARCHAR(64)   NULL,
+  "passwordResetExpiry"     TIMESTAMP     NULL,
+  "createdAt"               TIMESTAMP     NOT NULL DEFAULT NOW()
 );
 
 -- "userId" NULL = danh mục mặc định (global, dùng chung mọi user)

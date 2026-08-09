@@ -8,6 +8,8 @@ import { theme } from './theme/theme';
 import { LanguageProvider, useLanguage } from './i18n';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Categories from './pages/Categories';
 import Expenses from './pages/Expenses';
@@ -29,6 +31,8 @@ function AppContent() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               element={
                 <ProtectedRoute>

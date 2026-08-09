@@ -121,6 +121,12 @@ export default function Login() {
               disabled={loading}
             />
 
+            <Typography variant="body2" align="right" sx={{ mt: 0.5 }}>
+              <Link component={RouterLink} to="/forgot-password">
+                {t('forgotPasswordLink')}
+              </Link>
+            </Typography>
+
             <Button
               fullWidth
               type="submit"
