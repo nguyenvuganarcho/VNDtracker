@@ -3,6 +3,8 @@ export interface User {
   email: string;
   passwordHash: string;
   name: string;
+  passwordResetTokenHash: string | null;
+  passwordResetExpiry: string | null;
   createdAt: Date;
 }
 
@@ -19,6 +21,15 @@ export interface LoginRequestDto {
 
 export interface ChangePasswordRequestDto {
   currentPassword: string;
+  newPassword: string;
+}
+
+export interface ForgotPasswordRequestDto {
+  email: string;
+}
+
+export interface ResetPasswordRequestDto {
+  token: string;
   newPassword: string;
 }
 

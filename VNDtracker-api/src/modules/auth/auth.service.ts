@@ -1,16 +1,22 @@
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { AuthRepository } from './auth.repo';
 import {
   RegisterRequestDto,
   LoginRequestDto,
   ChangePasswordRequestDto,
+  ForgotPasswordRequestDto,
+  ResetPasswordRequestDto,
   AuthResponseDto,
   UserResponseDto,
   TokenPayload,
   User,
 } from './auth.dto';
 import { ConflictError, UnauthorizedError } from '../../common/errors';
+import { sendPasswordResetEmail } from '../../config/email';
+
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 export class AuthService {
   private repo: AuthRepository;
@@ -87,5 +93,35 @@ export class AuthService {
 
     const newPasswordHash = await bcrypt.hash(dto.newPassword, this.saltRounds);
     await this.repo.updatePassword(userId, newPasswordHash);
+  }
+
+  // Always resolves without revealing whether the email is registered --
+  // the response to the client is identical either way (see controller).
+  async forgotPassword(dto: ForgotPasswordRequestDto): Promise<void> {
+    const user = await this.repo.findByEmail(dto.email);
+    if (!user) {
+      return;
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const expiry = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+
+    await this.repo.setResetToken(user.userId, tokenHash, expiry);
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
+    await sendPasswordResetEmail(user.email, resetLink);
+  }
+
+  async resetPassword(dto: ResetPasswordRequestDto): Promise<void> {
+    const tokenHash = crypto.createHash('sha256').update(dto.token).digest('hex');
+    const user = await this.repo.findByValidResetTokenHash(tokenHash);
+    if (!user) {
+      throw new UnauthorizedError('Invalid or expired reset link');
+    }
+
+    const newPasswordHash = await bcrypt.hash(dto.newPassword, this.saltRounds);
+    await this.repo.resetPassword(user.userId, newPasswordHash);
   }
 }

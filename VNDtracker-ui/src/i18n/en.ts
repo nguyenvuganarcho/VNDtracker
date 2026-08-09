@@ -31,6 +31,18 @@ export const en = {
   passwordMismatch: 'New passwords do not match',
   passwordChanged: 'Password changed successfully',
   changePasswordFailed: 'Failed to change password',
+  forgotPasswordLink: 'Forgot password?',
+  forgotPasswordTitle: 'Forgot password',
+  forgotPasswordSubtitle: "Enter your email and we'll send you a reset link",
+  sendResetLink: 'Send reset link',
+  resetLinkSentNote: 'If that email is registered, a reset link has been sent. Check your inbox.',
+  backToLogin: 'Back to sign in',
+  resetPasswordTitle: 'Reset password',
+  resetPasswordSubtitle: 'Enter your new password below',
+  resetPasswordButton: 'Reset password',
+  resetPasswordSuccess: 'Password reset successfully. You can now sign in.',
+  invalidResetLink: 'This reset link is invalid or has expired.',
+  requestNewLink: 'Request a new link',
 
   // nav / dashboard
   dashboard: 'Dashboard',
