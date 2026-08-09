@@ -14,6 +14,7 @@ import Dashboard from './pages/Dashboard';
 import Categories from './pages/Categories';
 import Expenses from './pages/Expenses';
 import ScanReceipt from './pages/ScanReceipt';
+import Budgets from './pages/Budgets';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
@@ -44,6 +45,7 @@ function AppContent() {
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/categories" element={<Categories />} />
               <Route path="/scan" element={<ScanReceipt />} />
+              <Route path="/budgets" element={<Budgets />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -58,6 +58,24 @@ CREATE TABLE "expenses" (
 CREATE INDEX "IX_expenses_user_date" ON "expenses"("userId", "expenseDate" DESC);
 CREATE INDEX "IX_expenses_user_category" ON "expenses"("userId", "categoryId");
 
+-- "categoryId" NULL = ngân sách tổng (overall). Hạn mức cố định, áp dụng
+-- cho mọi tháng -- không có cột "month", đơn giản hơn bản phác thảo ban đầu
+-- (set 1 lần, không phải nhập lại mỗi tháng).
+CREATE TABLE "budgets" (
+  "budgetId"    SERIAL PRIMARY KEY,
+  "userId"      INTEGER NOT NULL REFERENCES "users"("userId") ON DELETE CASCADE,
+  "categoryId"  INTEGER NULL REFERENCES "categories"("categoryId") ON DELETE CASCADE,
+  "limitAmount" BIGINT NOT NULL CHECK ("limitAmount" > 0),
+  "createdAt"   TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt"   TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- At most one overall budget (categoryId NULL) per user, and at most one
+-- budget per (user, category) pair -- a plain UNIQUE(userId, categoryId)
+-- wouldn't stop multiple NULL rows since Postgres treats NULLs as distinct.
+CREATE UNIQUE INDEX "UQ_budgets_overall" ON "budgets"("userId") WHERE "categoryId" IS NULL;
+CREATE UNIQUE INDEX "UQ_budgets_category" ON "budgets"("userId", "categoryId") WHERE "categoryId" IS NOT NULL;
+
 -- Seed: danh mục mặc định (global, "userId" = NULL)
 -- "nameKey" phải khớp key trong VNDtracker-ui/src/i18n/en.ts và vi.ts
 INSERT INTO "categories" ("userId", "nameKey", "isDefault") VALUES

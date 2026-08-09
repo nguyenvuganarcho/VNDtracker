@@ -84,6 +84,18 @@ export const vi: Record<keyof typeof en, string> = {
   failedUpdateExpense: 'Không cập nhật được khoản chi',
   failedDeleteExpense: 'Không xoá được khoản chi',
 
+  budgetsTitle: 'Ngân sách',
+  overallBudget: 'Tổng',
+  setLimit: 'Đặt hạn mức',
+  limitAmount: 'Hạn mức',
+  noLimitSet: 'Chưa đặt hạn mức',
+  failedLoadBudgets: 'Không tải được ngân sách',
+  failedSaveBudget: 'Không lưu được ngân sách',
+  failedDeleteBudget: 'Không xoá được ngân sách',
+  budgetOverview: 'Ngân sách',
+  categoriesOverBudget: 'Danh mục vượt ngân sách',
+  viewBudgets: 'Xem ngân sách',
+
   scanReceipt: 'Quét hoá đơn',
   chooseImage: 'Chọn ảnh',
   scanButton: 'Quét',

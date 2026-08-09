@@ -25,6 +25,7 @@ const NAV_ITEMS = [
   { labelKey: 'dashboard', path: '/' },
   { labelKey: 'expenses', path: '/expenses' },
   { labelKey: 'categoriesTitle', path: '/categories' },
+  { labelKey: 'budgetsTitle', path: '/budgets' },
   { labelKey: 'scanReceipt', path: '/scan' },
 ] as const;
 

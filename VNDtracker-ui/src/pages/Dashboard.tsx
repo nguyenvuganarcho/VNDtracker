@@ -11,13 +11,15 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
+import LinearProgress from '@mui/material/LinearProgress';
 import { getExpensesApi } from '../api/expense';
 import { getCategoriesApi } from '../api/category';
+import { getBudgetsApi } from '../api/budget';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { getCategoryColor } from '../utils/categoryColor';
 import CategoryDot from '../components/CategoryDot';
 import { useLanguage } from '../i18n';
-import type { Category, Expense } from '../types';
+import type { Budget, Category, Expense } from '../types';
 
 const currentMonth = () => new Date().toISOString().slice(0, 7);
 const today = () => new Date().toISOString().slice(0, 10);
@@ -53,6 +55,7 @@ export default function Dashboard() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [trendExpenses, setTrendExpenses] = useState<Expense[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,11 +63,13 @@ export default function Dashboard() {
       getExpensesApi({ month: currentMonth() }),
       getCategoriesApi(),
       getExpensesApi({ startDate: sixMonthsAgoStart(), endDate: today() }),
+      getBudgetsApi(),
     ])
-      .then(([expensesRes, categoriesRes, trendRes]) => {
+      .then(([expensesRes, categoriesRes, trendRes, budgetsRes]) => {
         setExpenses(expensesRes.data);
         setCategories(categoriesRes.data);
         setTrendExpenses(trendRes.data);
+        setBudgets(budgetsRes.data);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -85,6 +90,13 @@ export default function Dashboard() {
       return acc;
     }, {} as Record<number, CategoryBreakdown>)
   ).sort((a, b) => b.amount - a.amount);
+
+  const overallBudget = budgets.find((b) => b.categoryId === null);
+  const overBudgetCount = budgets.filter((b) => {
+    if (b.categoryId === null) return false;
+    const spent = breakdown.find((c) => c.categoryId === b.categoryId)?.amount || 0;
+    return spent > b.limitAmount;
+  }).length;
 
   const recentExpenses = [...expenses]
     .sort((a, b) => b.expenseDate.localeCompare(a.expenseDate) || b.createdAt.localeCompare(a.createdAt))
@@ -138,6 +150,41 @@ export default function Dashboard() {
             <Typography variant="h3" gutterBottom>
               {formatCurrency(total)}
             </Typography>
+
+            {(overallBudget || overBudgetCount > 0) && (
+              <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                  <Typography variant="subtitle2">{t('budgetOverview')}</Typography>
+                  <Link component={RouterLink} to="/budgets" variant="body2">
+                    {t('viewBudgets')}
+                  </Link>
+                </Box>
+                {overallBudget && (
+                  <>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      {formatCurrency(total)} / {formatCurrency(overallBudget.limitAmount)}
+                    </Typography>
+                    <LinearProgress
+                      variant="determinate"
+                      value={Math.min((total / overallBudget.limitAmount) * 100, 100)}
+                      color={
+                        total > overallBudget.limitAmount
+                          ? 'error'
+                          : total / overallBudget.limitAmount >= 0.8
+                            ? 'warning'
+                            : 'success'
+                      }
+                      sx={{ height: 6, borderRadius: 3 }}
+                    />
+                  </>
+                )}
+                {overBudgetCount > 0 && (
+                  <Typography variant="body2" color="error" sx={{ mt: overallBudget ? 1 : 0 }}>
+                    {t('categoriesOverBudget')}: {overBudgetCount}
+                  </Typography>
+                )}
+              </Box>
+            )}
 
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <PieChart
