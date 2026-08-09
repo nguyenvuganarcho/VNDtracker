@@ -88,6 +88,20 @@ export interface ExpenseFilters {
   endDate?: string;
 }
 
+export interface Budget {
+  budgetId: number;
+  userId: number;
+  categoryId: number | null;
+  limitAmount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpsertBudgetRequest {
+  categoryId: number | null;
+  limitAmount: number;
+}
+
 export interface ScanReceiptResult {
   aiReadable: boolean;
   inputType: 'bill' | 'transfer' | null;

@@ -85,6 +85,19 @@ export const en = {
   failedUpdateExpense: 'Failed to update expense',
   failedDeleteExpense: 'Failed to delete expense',
 
+  // budgets
+  budgetsTitle: 'Budgets',
+  overallBudget: 'Overall',
+  setLimit: 'Set limit',
+  limitAmount: 'Limit amount',
+  noLimitSet: 'No limit set',
+  failedLoadBudgets: 'Failed to load budgets',
+  failedSaveBudget: 'Failed to save budget',
+  failedDeleteBudget: 'Failed to remove budget',
+  budgetOverview: 'Budget',
+  categoriesOverBudget: 'Categories over budget',
+  viewBudgets: 'View budgets',
+
   // AI receipt scan
   scanReceipt: 'Scan Receipt',
   chooseImage: 'Choose image',

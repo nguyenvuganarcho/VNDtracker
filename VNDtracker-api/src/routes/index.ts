@@ -3,6 +3,7 @@ import { AuthController } from '../modules/auth/auth.controller';
 import { CategoryController } from '../modules/category/category.controller';
 import { ExpenseController } from '../modules/expense/expense.controller';
 import { AiController } from '../modules/ai/ai.controller';
+import { BudgetController } from '../modules/budget/budget.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -28,5 +29,11 @@ router.delete('/expenses/:id', requireAuth, expenseController.delete);
 
 const aiController = new AiController();
 router.post('/ai/scan', requireAuth, aiController.scan);
+
+const budgetController = new BudgetController();
+router.get('/budgets', requireAuth, budgetController.getAll);
+router.put('/budgets', requireAuth, budgetController.upsert);
+router.delete('/budgets/overall', requireAuth, budgetController.deleteOverall);
+router.delete('/budgets/category/:categoryId', requireAuth, budgetController.deleteCategory);
 
 export default router;
