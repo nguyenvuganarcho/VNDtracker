@@ -43,6 +43,7 @@ export const en = {
   resetPasswordSuccess: 'Password reset successfully. You can now sign in.',
   invalidResetLink: 'This reset link is invalid or has expired.',
   requestNewLink: 'Request a new link',
+  forgotPasswordFailed: 'Failed to send reset link',
 
   // nav / dashboard
   dashboard: 'Dashboard',

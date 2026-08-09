@@ -40,7 +40,7 @@ export default function ForgotPassword() {
       // Never surface a distinct error for "email not found" -- the backend
       // already returns the same generic success response for that case, so
       // reaching this branch means an actual request/server error.
-      setError(t('changePasswordFailed'));
+      setError(t('forgotPasswordFailed'));
     } finally {
       setLoading(false);
     }

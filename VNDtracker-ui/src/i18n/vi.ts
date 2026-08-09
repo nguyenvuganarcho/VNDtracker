@@ -45,6 +45,7 @@ export const vi: Record<keyof typeof en, string> = {
   resetPasswordSuccess: 'Đặt lại mật khẩu thành công. Giờ bạn có thể đăng nhập.',
   invalidResetLink: 'Link đặt lại không hợp lệ hoặc đã hết hạn.',
   requestNewLink: 'Yêu cầu link mới',
+  forgotPasswordFailed: 'Không gửi được link đặt lại',
 
   dashboard: 'Tổng quan',
   logout: 'Đăng xuất',
