@@ -2,7 +2,7 @@
 
 A personal expense tracker with one core idea: **photograph a receipt or a bank-transfer screenshot and let AI record the expense for you.** No manual data entry required — snap, review, save.
 
-**Live app**: https://vn-dtracker.vercel.app
+**Live app**: https://vndtracker.com
 *(Backend runs on a free-tier instance that sleeps after 15 minutes of inactivity — the first request after a while may take 30-50s to wake up.)*
 
 ## Why
@@ -18,6 +18,7 @@ Manually logging every expense is tedious enough that most people give up after 
 - **Custom categories**, alongside a set of sensible defaults
 - **English / Vietnamese** UI, switchable at runtime
 - **Currency display toggle** (đ / $) — display-only, does not convert amounts
+- **Account security** — change password while signed in, or reset a forgotten one via an emailed link (single-use, expires in 1 hour)
 
 ## Tech stack
 
@@ -36,9 +37,10 @@ Manually logging every expense is tedious enough that most people give up after 
 - Lightweight custom i18n (typed EN/VI dictionaries — a missing translation key is a compile error, not a runtime blank string)
 
 **Infrastructure** (all free tier)
-- Frontend hosted on Vercel
+- Frontend hosted on Vercel, on a custom domain (`vndtracker.com`)
 - Backend hosted on Render
 - Database + object storage on Supabase
+- Transactional email (password reset) via Resend
 
 No Docker — each host builds and deploys directly from this Git repo.
 
