@@ -5,6 +5,8 @@ A personal expense tracker with one core idea: **photograph a receipt or a bank-
 **Live app**: https://vndtracker.com
 *(Backend runs on a free-tier instance that sleeps after 15 minutes of inactivity — the first request after a while may take 30-50s to wake up.)*
 
+**Contributing?** Start with [CONTEXT.md](CONTEXT.md) — architecture, conventions, local setup, and the non-obvious gotchas.
+
 ## Why
 
 Manually logging every expense is tedious enough that most people give up after a week. VNDtracker removes the friction: upload a photo of a receipt or a bank transfer confirmation, and Claude's vision model reads the amount, date, and likely category, so you only have to confirm and save.
