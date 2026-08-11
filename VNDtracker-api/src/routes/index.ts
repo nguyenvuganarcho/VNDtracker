@@ -5,15 +5,16 @@ import { ExpenseController } from '../modules/expense/expense.controller';
 import { AiController } from '../modules/ai/ai.controller';
 import { BudgetController } from '../modules/budget/budget.controller';
 import { requireAuth } from '../middlewares/auth.middleware';
+import { authLimiter, forgotPasswordLimiter, aiScanLimiter } from '../middlewares/rateLimit.middleware';
 
 const router = Router();
 
 const authController = new AuthController();
-router.post('/auth/register', authController.register);
-router.post('/auth/login', authController.login);
+router.post('/auth/register', authLimiter, authController.register);
+router.post('/auth/login', authLimiter, authController.login);
 router.put('/auth/change-password', requireAuth, authController.changePassword);
-router.post('/auth/forgot-password', authController.forgotPassword);
-router.post('/auth/reset-password', authController.resetPassword);
+router.post('/auth/forgot-password', forgotPasswordLimiter, authController.forgotPassword);
+router.post('/auth/reset-password', authLimiter, authController.resetPassword);
 
 const categoryController = new CategoryController();
 router.get('/categories', requireAuth, categoryController.getAll);
@@ -28,7 +29,7 @@ router.put('/expenses/:id', requireAuth, expenseController.update);
 router.delete('/expenses/:id', requireAuth, expenseController.delete);
 
 const aiController = new AiController();
-router.post('/ai/scan', requireAuth, aiController.scan);
+router.post('/ai/scan', requireAuth, aiScanLimiter, aiController.scan);
 
 const budgetController = new BudgetController();
 router.get('/budgets', requireAuth, budgetController.getAll);
