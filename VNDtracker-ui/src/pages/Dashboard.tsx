@@ -4,7 +4,6 @@ import { Link as RouterLink } from 'react-router-dom';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import { ChartsReferenceLine } from '@mui/x-charts/ChartsReferenceLine';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -111,12 +110,10 @@ export default function Dashboard() {
   const todayTotal = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
   const totalByDate = (date: string) =>
     trendExpenses.filter((e) => e.expenseDate === date).reduce((sum, e) => sum + e.amount, 0);
-  const last14Totals = Array.from({ length: 14 }, (_, i) =>
-    totalByDate(dayjs().subtract(13 - i, 'day').format('YYYY-MM-DD'))
-  );
 
-  // W3 -- rolling last 7 days ending today (not the ISO calendar week --
-  // that alignment is used by the weekly-budget widgets instead).
+  // W2 + W3 share the same rolling-7-day window (ending today, not the ISO
+  // calendar week -- that alignment is for the weekly-budget widgets
+  // instead) so both charts agree on which day is which.
   const last7Days = Array.from({ length: 7 }, (_, i) => dayjs().subtract(6 - i, 'day'));
   const last7Totals = last7Days.map((d) => totalByDate(d.format('YYYY-MM-DD')));
   const last7Labels = last7Days.map((d) => d.locale(language).format('dd'));
@@ -223,21 +220,29 @@ export default function Dashboard() {
             )}
           </Box>
 
-          {/* W2 -- today strip */}
+          {/* W2 -- today strip. Shares last7Days/last7Labels with W3 below
+              so both charts agree on which point is which day -- a bare
+              axis-less sparkline here made it impossible to tell days apart. */}
           <Box>
             <Typography variant="body1" gutterBottom>
               {t('today')}: {formatCurrency(todayTotal)} · {todayExpenses.length}{' '}
               {todayExpenses.length === 1 ? t('item') : t('items')}
             </Typography>
             <Box sx={{ width: '100%' }}>
-              <SparkLineChart data={last14Totals} plotType="line" area height={40} color="#000000" />
+              <LineChart
+                xAxis={[{ scaleType: 'point', data: last7Labels }]}
+                yAxis={[{ width: 0 }]}
+                series={[{ data: last7Totals, color: '#000000', area: true, showMark: false }]}
+                height={90}
+                margin={{ top: 8, bottom: 20, left: 16, right: 16 }}
+              />
             </Box>
           </Box>
 
           {/* W3 -- last 7 days */}
           <Box>
             <Typography variant="h6" gutterBottom>
-              {t('last7Days')}
+              {t('last7Days')} · {t('avgLabel')} {formatCurrency(Math.round(last7Average))}
             </Typography>
             <Box sx={{ width: '100%' }}>
               <BarChart
@@ -245,12 +250,7 @@ export default function Dashboard() {
                 series={[{ data: last7Totals, color: '#000000', valueFormatter: (v) => formatCurrency(v ?? 0) }]}
                 height={180}
               >
-                <ChartsReferenceLine
-                  y={last7Average}
-                  label={`${t('avgLabel')} ${formatCurrency(Math.round(last7Average))}`}
-                  labelStyle={{ fontSize: 11 }}
-                  lineStyle={{ strokeDasharray: '4 4' }}
-                />
+                <ChartsReferenceLine y={last7Average} lineStyle={{ strokeDasharray: '4 4' }} />
               </BarChart>
             </Box>
           </Box>
