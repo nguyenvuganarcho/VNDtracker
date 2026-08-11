@@ -154,7 +154,7 @@ export default function Dashboard() {
   });
 
   return (
-    <Box sx={{ maxWidth: 480, mx: 'auto' }}>
+    <Box sx={{ maxWidth: { xs: '100%', sm: 640 }, mx: 'auto' }}>
       <Typography variant="h6" gutterBottom>
         {t('thisMonth')}
       </Typography>
@@ -226,10 +226,11 @@ export default function Dashboard() {
           {/* W2 -- today strip */}
           <Box>
             <Typography variant="body1" gutterBottom>
-              {t('today')}: {formatCurrency(todayTotal)} · {todayExpenses.length} {t('items')}
+              {t('today')}: {formatCurrency(todayTotal)} · {todayExpenses.length}{' '}
+              {todayExpenses.length === 1 ? t('item') : t('items')}
             </Typography>
             <Box sx={{ width: '100%' }}>
-              <SparkLineChart data={last14Totals} plotType="bar" height={40} color="#000000" />
+              <SparkLineChart data={last14Totals} plotType="line" area height={40} color="#000000" />
             </Box>
           </Box>
 
@@ -246,7 +247,8 @@ export default function Dashboard() {
               >
                 <ChartsReferenceLine
                   y={last7Average}
-                  label={t('avgLabel')}
+                  label={`${t('avgLabel')} ${formatCurrency(Math.round(last7Average))}`}
+                  labelStyle={{ fontSize: 11 }}
                   lineStyle={{ strokeDasharray: '4 4' }}
                 />
               </BarChart>

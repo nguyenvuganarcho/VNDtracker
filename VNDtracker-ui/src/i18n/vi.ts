@@ -107,6 +107,7 @@ export const vi: Record<keyof typeof en, string> = {
   scanAnother: 'Quét ảnh khác',
 
   today: 'Hôm nay',
+  item: 'khoản',
   items: 'khoản',
   last7Days: '7 ngày gần đây',
   avgLabel: 'TB',

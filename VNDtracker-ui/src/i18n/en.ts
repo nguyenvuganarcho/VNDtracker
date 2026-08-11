@@ -112,6 +112,7 @@ export const en = {
   // default category names (nameKey -> label)
   // dashboard rebuild (persona audit, Track B)
   today: 'Today',
+  item: 'item',
   items: 'items',
   last7Days: 'Last 7 days',
   avgLabel: 'avg',
