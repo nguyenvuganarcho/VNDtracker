@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 import { Link as RouterLink } from 'react-router-dom';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { LineChart } from '@mui/x-charts/LineChart';
@@ -17,32 +18,25 @@ import { getCategoriesApi } from '../api/category';
 import { getBudgetsApi } from '../api/budget';
 import { getCategoryLabel } from '../utils/categoryLabels';
 import { getCategoryColor } from '../utils/categoryColor';
+import { localCurrentMonth, localToday } from '../utils/date';
 import CategoryDot from '../components/CategoryDot';
 import { useLanguage } from '../i18n';
 import type { Budget, Category, Expense } from '../types';
 
-const currentMonth = () => new Date().toISOString().slice(0, 7);
-const today = () => new Date().toISOString().slice(0, 10);
+const currentMonth = localCurrentMonth;
+const today = localToday;
 
 // Last 6 months as "YYYY-MM" labels, oldest first, always including the
 // current month even if it has no expenses yet.
 const last6Months = (): string[] => {
   const months: string[] = [];
-  const base = new Date();
-  base.setDate(1);
   for (let i = 5; i >= 0; i--) {
-    const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
-    months.push(d.toISOString().slice(0, 7));
+    months.push(dayjs().subtract(i, 'month').format('YYYY-MM'));
   }
   return months;
 };
 
-const sixMonthsAgoStart = () => {
-  const d = new Date();
-  d.setDate(1);
-  d.setMonth(d.getMonth() - 5);
-  return d.toISOString().slice(0, 10);
-};
+const sixMonthsAgoStart = () => dayjs().subtract(5, 'month').startOf('month').format('YYYY-MM-DD');
 
 interface CategoryBreakdown {
   categoryId: number;
