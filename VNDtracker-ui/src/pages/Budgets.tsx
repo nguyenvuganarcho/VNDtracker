@@ -14,11 +14,12 @@ import { getBudgetsApi, upsertBudgetApi, deleteOverallBudgetApi, deleteCategoryB
 import { getCategoriesApi } from '../api/category';
 import { getExpensesApi } from '../api/expense';
 import { getCategoryLabel } from '../utils/categoryLabels';
+import { localCurrentMonth } from '../utils/date';
 import CategoryDot from '../components/CategoryDot';
 import { useLanguage } from '../i18n';
 import type { Budget, Category, Expense } from '../types';
 
-const currentMonth = () => new Date().toISOString().slice(0, 7);
+const currentMonth = localCurrentMonth;
 
 // Sentinel key for the overall (categoryId null) row -- Record keys must be
 // strings, and "null" as a literal string would be ambiguous with a real
