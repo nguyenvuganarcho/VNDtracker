@@ -252,8 +252,48 @@ export default function Dashboard() {
                   />
                   <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
                     {formatCurrency(thisWeekTotal)} / {formatCurrency(Math.round(weeklyBudget))} ·{' '}
-                    {t('fromMonthlyBudget')}
+                    {t('weekShareOfMonthly').replace(
+                      '{month}',
+                      formatCurrency(overallBudget!.limitAmount)
+                    )}
                   </Typography>
+
+                  {/* Month-to-date, spelled out. Without it, a week that
+                      overshoots its prorated slice shows a full red bar even
+                      when the month is comfortably on track -- which read as
+                      "budget blown" to the first person who used it. */}
+                  <Box
+                    sx={{
+                      mt: 1.5,
+                      pt: 1.5,
+                      borderTop: '1px solid #e0e0e0',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'baseline',
+                    }}
+                  >
+                    <Typography variant="body2" color="text.secondary">
+                      {t('monthLabel')}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color={total > overallBudget!.limitAmount ? 'error' : 'text.primary'}
+                    >
+                      {formatCurrency(total)} / {formatCurrency(overallBudget!.limitAmount)}
+                    </Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={Math.min((total / overallBudget!.limitAmount) * 100, 100)}
+                    color={
+                      total > overallBudget!.limitAmount
+                        ? 'error'
+                        : total / overallBudget!.limitAmount >= 0.8
+                          ? 'warning'
+                          : 'success'
+                    }
+                    sx={{ height: 6, borderRadius: 3, mt: 0.5 }}
+                  />
                 </>
               ) : (
                 <>
