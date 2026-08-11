@@ -3,6 +3,9 @@ import dayjs from 'dayjs';
 import { Link as RouterLink } from 'react-router-dom';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { LineChart } from '@mui/x-charts/LineChart';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
+import { ChartsReferenceLine } from '@mui/x-charts/ChartsReferenceLine';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -13,6 +16,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { getExpensesApi } from '../api/expense';
 import { getCategoriesApi } from '../api/category';
 import { getBudgetsApi } from '../api/budget';
@@ -42,6 +46,12 @@ interface CategoryBreakdown {
   categoryId: number;
   label: string;
   amount: number;
+}
+
+interface DayGroup {
+  date: string;
+  total: number;
+  items: Expense[];
 }
 
 export default function Dashboard() {
@@ -92,9 +102,41 @@ export default function Dashboard() {
     return spent > b.limitAmount;
   }).length;
 
-  const recentExpenses = [...expenses]
-    .sort((a, b) => b.expenseDate.localeCompare(a.expenseDate) || b.createdAt.localeCompare(a.createdAt))
-    .slice(0, 5);
+  // W2 -- today's total/count, plus a 14-day sparkline. Both read from
+  // trendExpenses (not the current-month-only `expenses`) so the sparkline
+  // and "today" figure stay correct even when today falls in the first few
+  // days of a new month.
+  const todayStr = today();
+  const todayExpenses = trendExpenses.filter((e) => e.expenseDate === todayStr);
+  const todayTotal = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalByDate = (date: string) =>
+    trendExpenses.filter((e) => e.expenseDate === date).reduce((sum, e) => sum + e.amount, 0);
+  const last14Totals = Array.from({ length: 14 }, (_, i) =>
+    totalByDate(dayjs().subtract(13 - i, 'day').format('YYYY-MM-DD'))
+  );
+
+  // W3 -- rolling last 7 days ending today (not the ISO calendar week --
+  // that alignment is used by the weekly-budget widgets instead).
+  const last7Days = Array.from({ length: 7 }, (_, i) => dayjs().subtract(6 - i, 'day'));
+  const last7Totals = last7Days.map((d) => totalByDate(d.format('YYYY-MM-DD')));
+  const last7Labels = last7Days.map((d) => d.locale(language).format('dd'));
+  const last7Average = last7Totals.reduce((sum, v) => sum + v, 0) / 7;
+
+  // W5 -- last 7 *days that have entries* (not 7 calendar slots), most
+  // recent first, each with its own subtotal.
+  const recentGrouped: DayGroup[] = Object.entries(
+    trendExpenses.reduce((acc, e) => {
+      (acc[e.expenseDate] ??= []).push(e);
+      return acc;
+    }, {} as Record<string, Expense[]>)
+  )
+    .sort(([a], [b]) => b.localeCompare(a))
+    .slice(0, 7)
+    .map(([date, items]) => ({
+      date,
+      total: items.reduce((sum, e) => sum + e.amount, 0),
+      items: [...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    }));
 
   const monthLabels = last6Months();
   const monthTotals = trendExpenses.reduce((acc, e) => {
@@ -112,7 +154,7 @@ export default function Dashboard() {
   });
 
   return (
-    <Box sx={{ maxWidth: 960, mx: 'auto' }}>
+    <Box sx={{ maxWidth: 480, mx: 'auto' }}>
       <Typography variant="h6" gutterBottom>
         {t('thisMonth')}
       </Typography>
@@ -139,14 +181,14 @@ export default function Dashboard() {
           </Stack>
         </Box>
       ) : (
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
-          <Box sx={{ flex: '1 1 420px', minWidth: 0 }}>
+        <Stack spacing={3}>
+          <Box>
             <Typography variant="h3" gutterBottom>
               {formatCurrency(total)}
             </Typography>
 
             {(overallBudget || overBudgetCount > 0) && (
-              <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2, mb: 2 }}>
+              <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                   <Typography variant="subtitle2">{t('budgetOverview')}</Typography>
                   <Link component={RouterLink} to="/budgets" variant="body2">
@@ -179,8 +221,41 @@ export default function Dashboard() {
                 )}
               </Box>
             )}
+          </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          {/* W2 -- today strip */}
+          <Box>
+            <Typography variant="body1" gutterBottom>
+              {t('today')}: {formatCurrency(todayTotal)} · {todayExpenses.length} {t('items')}
+            </Typography>
+            <Box sx={{ width: '100%' }}>
+              <SparkLineChart data={last14Totals} plotType="bar" height={40} color="#000000" />
+            </Box>
+          </Box>
+
+          {/* W3 -- last 7 days */}
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              {t('last7Days')}
+            </Typography>
+            <Box sx={{ width: '100%' }}>
+              <BarChart
+                xAxis={[{ scaleType: 'band', data: last7Labels }]}
+                series={[{ data: last7Totals, color: '#000000', valueFormatter: (v) => formatCurrency(v ?? 0) }]}
+                height={180}
+              >
+                <ChartsReferenceLine
+                  y={last7Average}
+                  label={t('avgLabel')}
+                  lineStyle={{ strokeDasharray: '4 4' }}
+                />
+              </BarChart>
+            </Box>
+          </Box>
+
+          {/* Category breakdown (pie) -- widget W4 replaces this in the next PR */}
+          <Box>
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
               <PieChart
                 series={[
                   {
@@ -193,7 +268,6 @@ export default function Dashboard() {
                     innerRadius: 40,
                   },
                 ]}
-                width={380}
                 height={240}
               />
             </Box>
@@ -222,41 +296,58 @@ export default function Dashboard() {
             </Box>
           </Box>
 
-          <Box sx={{ flex: '1 1 320px', minWidth: 0 }}>
+          {/* W5 -- recent, grouped by day */}
+          <Box>
             <Typography variant="h6" gutterBottom>
               {t('recentExpenses')}
             </Typography>
             <List sx={{ border: '1px solid #e0e0e0', borderRadius: 2, py: 0 }}>
-              {recentExpenses.map((expense) => (
-                <ListItem key={expense.expenseId} divider>
-                  <CategoryDot categoryId={expense.categoryId} />
-                  <ListItemText
-                    sx={{ ml: 1.5 }}
-                    primary={`${formatCurrency(expense.amount)} — ${categoryLabelById(expense.categoryId)}`}
-                    secondary={expense.expenseDate.slice(0, 10)}
-                  />
-                </ListItem>
+              {recentGrouped.map((group) => (
+                <Box key={group.date}>
+                  <Box sx={{ px: 2, py: 1, bgcolor: '#fafafa', borderTop: '1px solid #e0e0e0' }}>
+                    <Typography variant="caption" color="text.secondary">
+                      {dayjs(group.date).locale(language).format('ddd D MMM')} — {formatCurrency(group.total)}
+                    </Typography>
+                  </Box>
+                  {group.items.map((expense) => (
+                    <ListItem key={expense.expenseId} divider>
+                      <CategoryDot categoryId={expense.categoryId} />
+                      <ListItemText
+                        sx={{ ml: 1.5 }}
+                        primary={
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            {formatCurrency(expense.amount)} — {categoryLabelById(expense.categoryId)}
+                            {expense.source === 'ai' && (
+                              <AutoAwesomeIcon fontSize="inherit" sx={{ color: 'text.secondary' }} />
+                            )}
+                          </Box>
+                        }
+                        secondary={expense.note || undefined}
+                      />
+                    </ListItem>
+                  ))}
+                </Box>
               ))}
             </List>
             <Link component={RouterLink} to="/expenses" variant="body2" sx={{ mt: 1, display: 'inline-block' }}>
               {t('viewAll')}
             </Link>
           </Box>
-        </Stack>
-      )}
 
-      {!loading && (
-        <Box sx={{ mt: 4, maxWidth: '100%', overflowX: 'auto' }}>
-          <Typography variant="h6" gutterBottom>
-            {t('spendingTrend')}
-          </Typography>
-          <LineChart
-            xAxis={[{ scaleType: 'point', data: trendLabels }]}
-            series={[{ data: trendValues, color: '#000000', valueFormatter: (v) => formatCurrency(v ?? 0) }]}
-            width={700}
-            height={220}
-          />
-        </Box>
+          {/* 6-month trend */}
+          <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+            <Typography variant="h6" gutterBottom>
+              {t('spendingTrend')}
+            </Typography>
+            <Box sx={{ width: '100%' }}>
+              <LineChart
+                xAxis={[{ scaleType: 'point', data: trendLabels }]}
+                series={[{ data: trendValues, color: '#000000', valueFormatter: (v) => formatCurrency(v ?? 0) }]}
+                height={220}
+              />
+            </Box>
+          </Box>
+        </Stack>
       )}
     </Box>
   );

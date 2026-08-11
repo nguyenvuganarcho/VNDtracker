@@ -110,6 +110,12 @@ export const en = {
   scanAnother: 'Scan another',
 
   // default category names (nameKey -> label)
+  // dashboard rebuild (persona audit, Track B)
+  today: 'Today',
+  items: 'items',
+  last7Days: 'Last 7 days',
+  avgLabel: 'avg',
+
   category_food: 'Food & Drink',
   category_transport: 'Transport',
   category_bills: 'Bills & Utilities',

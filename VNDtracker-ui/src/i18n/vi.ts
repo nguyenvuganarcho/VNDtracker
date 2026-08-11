@@ -106,6 +106,11 @@ export const vi: Record<keyof typeof en, string> = {
   save: 'Lưu',
   scanAnother: 'Quét ảnh khác',
 
+  today: 'Hôm nay',
+  items: 'khoản',
+  last7Days: '7 ngày gần đây',
+  avgLabel: 'TB',
+
   category_food: 'Ăn uống',
   category_transport: 'Di chuyển',
   category_bills: 'Hoá đơn & Tiện ích',
