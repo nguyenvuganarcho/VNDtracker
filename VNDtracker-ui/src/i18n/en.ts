@@ -116,6 +116,13 @@ export const en = {
   items: 'items',
   last7Days: 'Last 7 days',
   avgLabel: 'avg',
+  leftThisWeek: 'Left this week',
+  fromMonthlyBudget: 'from monthly budget',
+  overBy: 'Over by',
+  setBudgetCta: 'Set a monthly ceiling to see what’s safe to spend',
+  thisWeekByCategory: 'This week by category',
+  noSpendThisWeek: 'Nothing spent this week yet.',
+  budgetHealth: 'Watch list',
 
   category_food: 'Food & Drink',
   category_transport: 'Transport',

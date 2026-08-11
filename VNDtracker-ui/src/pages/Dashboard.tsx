@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import { Link as RouterLink } from 'react-router-dom';
-import { PieChart } from '@mui/x-charts/PieChart';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { ChartsReferenceLine } from '@mui/x-charts/ChartsReferenceLine';
@@ -25,6 +25,11 @@ import { localCurrentMonth, localToday } from '../utils/date';
 import CategoryDot from '../components/CategoryDot';
 import { useLanguage } from '../i18n';
 import type { Budget, Category, Expense } from '../types';
+
+// isoWeek pins the week to Mon-Sun regardless of locale -- dayjs's default
+// startOf('week') is Sunday under the English locale and Monday under vi,
+// which would silently shift "this week" when the user switches language.
+dayjs.extend(isoWeek);
 
 const currentMonth = localCurrentMonth;
 const today = localToday;
@@ -95,11 +100,6 @@ export default function Dashboard() {
   ).sort((a, b) => b.amount - a.amount);
 
   const overallBudget = budgets.find((b) => b.categoryId === null);
-  const overBudgetCount = budgets.filter((b) => {
-    if (b.categoryId === null) return false;
-    const spent = breakdown.find((c) => c.categoryId === b.categoryId)?.amount || 0;
-    return spent > b.limitAmount;
-  }).length;
 
   // W2 -- today's total/count, plus a 14-day sparkline. Both read from
   // trendExpenses (not the current-month-only `expenses`) so the sparkline
@@ -118,6 +118,48 @@ export default function Dashboard() {
   const last7Totals = last7Days.map((d) => totalByDate(d.format('YYYY-MM-DD')));
   const last7Labels = last7Days.map((d) => d.locale(language).format('dd'));
   const last7Average = last7Totals.reduce((sum, v) => sum + v, 0) / 7;
+
+  // W1/W4 use the ISO week (Mon-Sun) rather than the rolling 7-day window
+  // above: "left this week" only makes sense against a week that actually
+  // ends, and it resets on Monday like the user's own sense of the week.
+  const weekStart = dayjs().startOf('isoWeek');
+  const weekEnd = dayjs().endOf('isoWeek');
+  const thisWeekExpenses = trendExpenses.filter((e) => {
+    const d = dayjs(e.expenseDate);
+    return !d.isBefore(weekStart, 'day') && !d.isAfter(weekEnd, 'day');
+  });
+  const thisWeekTotal = thisWeekExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+  // Proration, not a stored weekly limit -- the budgets table only holds a
+  // standing monthly figure, so this is an honest approximation and the
+  // label says so. A real weekly cadence needs a schema change.
+  const weeklyBudget = overallBudget
+    ? (overallBudget.limitAmount * 7) / dayjs().daysInMonth()
+    : null;
+  const weekLeft = weeklyBudget !== null ? weeklyBudget - thisWeekTotal : null;
+
+  const weekBreakdown: CategoryBreakdown[] = Object.values(
+    thisWeekExpenses.reduce((acc, e) => {
+      if (!acc[e.categoryId]) {
+        acc[e.categoryId] = { categoryId: e.categoryId, label: categoryLabelById(e.categoryId), amount: 0 };
+      }
+      acc[e.categoryId].amount += e.amount;
+      return acc;
+    }, {} as Record<number, CategoryBreakdown>)
+  )
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
+
+  // W6 -- only categories with a budget that are >=60% consumed this month.
+  // Everything comfortably green stays hidden: silence is the signal.
+  const watchList = budgets
+    .filter((b) => b.categoryId !== null)
+    .map((b) => {
+      const spent = breakdown.find((c) => c.categoryId === b.categoryId)?.amount || 0;
+      return { budget: b, spent, ratio: spent / b.limitAmount };
+    })
+    .filter((row) => row.ratio >= 0.6)
+    .sort((a, b) => b.ratio - a.ratio);
 
   // W5 -- last 7 *days that have entries* (not 7 calendar slots), most
   // recent first, each with its own subtotal.
@@ -184,40 +226,46 @@ export default function Dashboard() {
               {formatCurrency(total)}
             </Typography>
 
-            {(overallBudget || overBudgetCount > 0) && (
-              <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="subtitle2">{t('budgetOverview')}</Typography>
-                  <Link component={RouterLink} to="/budgets" variant="body2">
-                    {t('viewBudgets')}
-                  </Link>
-                </Box>
-                {overallBudget && (
-                  <>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                      {formatCurrency(total)} / {formatCurrency(overallBudget.limitAmount)}
+            {/* W1 -- safe-to-spend. Deliberately not a chart: one number
+                answers the question faster than any visualization. */}
+            <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, p: 2 }}>
+              {weeklyBudget !== null && weekLeft !== null ? (
+                <>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <Typography variant="subtitle2">
+                      {weekLeft >= 0 ? t('leftThisWeek') : t('overBy')}
                     </Typography>
-                    <LinearProgress
-                      variant="determinate"
-                      value={Math.min((total / overallBudget.limitAmount) * 100, 100)}
-                      color={
-                        total > overallBudget.limitAmount
-                          ? 'error'
-                          : total / overallBudget.limitAmount >= 0.8
-                            ? 'warning'
-                            : 'success'
-                      }
-                      sx={{ height: 6, borderRadius: 3 }}
-                    />
-                  </>
-                )}
-                {overBudgetCount > 0 && (
-                  <Typography variant="body2" color="error" sx={{ mt: overallBudget ? 1 : 0 }}>
-                    {t('categoriesOverBudget')}: {overBudgetCount}
+                    <Link component={RouterLink} to="/budgets" variant="body2">
+                      {t('viewBudgets')}
+                    </Link>
+                  </Box>
+                  <Typography variant="h4" color={weekLeft >= 0 ? 'text.primary' : 'error'} gutterBottom>
+                    {formatCurrency(Math.round(Math.abs(weekLeft)))}
                   </Typography>
-                )}
-              </Box>
-            )}
+                  <LinearProgress
+                    variant="determinate"
+                    value={Math.min((thisWeekTotal / weeklyBudget) * 100, 100)}
+                    color={
+                      weekLeft < 0 ? 'error' : thisWeekTotal / weeklyBudget >= 0.8 ? 'warning' : 'success'
+                    }
+                    sx={{ height: 6, borderRadius: 3 }}
+                  />
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
+                    {formatCurrency(thisWeekTotal)} / {formatCurrency(Math.round(weeklyBudget))} ·{' '}
+                    {t('fromMonthlyBudget')}
+                  </Typography>
+                </>
+              ) : (
+                <>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    {t('setBudgetCta')}
+                  </Typography>
+                  <Button size="small" variant="outlined" component={RouterLink} to="/budgets">
+                    {t('budgetsTitle')}
+                  </Button>
+                </>
+              )}
+            </Box>
           </Box>
 
           {/* W2 -- today strip. Shares last7Days/last7Labels with W3 below
@@ -255,48 +303,70 @@ export default function Dashboard() {
             </Box>
           </Box>
 
-          {/* Category breakdown (pie) -- widget W4 replaces this in the next PR */}
+          {/* W4 -- this week by category. Horizontal bars beat the old pie
+              on a phone: labels sit readably at line-start, and comparing
+              lengths is easier than comparing angles -- especially with the
+              2-3 categories a light user actually produces. */}
           <Box>
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-              <PieChart
-                series={[
-                  {
-                    data: breakdown.map((b) => ({
-                      id: b.categoryId,
-                      value: b.amount,
-                      label: b.label,
-                      color: getCategoryColor(b.categoryId),
-                    })),
-                    innerRadius: 40,
-                  },
-                ]}
-                height={240}
-              />
-            </Box>
-
-            <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, mt: 2 }}>
-              {breakdown.map((b, i) => (
-                <Box
-                  key={b.categoryId}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1,
-                    justifyContent: 'space-between',
-                    px: 2,
-                    py: 1,
-                    borderTop: i === 0 ? 'none' : '1px solid #e0e0e0',
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CategoryDot categoryId={b.categoryId} />
-                    <Typography variant="body2">{b.label}</Typography>
-                  </Box>
-                  <Typography variant="body2">{formatCurrency(b.amount)}</Typography>
-                </Box>
-              ))}
-            </Box>
+            <Typography variant="h6" gutterBottom>
+              {t('thisWeekByCategory')}
+            </Typography>
+            {weekBreakdown.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                {t('noSpendThisWeek')}
+              </Typography>
+            ) : (
+              <Box sx={{ width: '100%' }}>
+                <BarChart
+                  layout="horizontal"
+                  yAxis={[{ scaleType: 'band', data: weekBreakdown.map((b) => b.label), width: 100 }]}
+                  series={[
+                    {
+                      data: weekBreakdown.map((b) => b.amount),
+                      valueFormatter: (v) => formatCurrency(v ?? 0),
+                    },
+                  ]}
+                  colors={weekBreakdown.map((b) => getCategoryColor(b.categoryId))}
+                  height={Math.max(120, weekBreakdown.length * 48)}
+                />
+              </Box>
+            )}
           </Box>
+
+          {/* W6 -- budget watch list, compressed. Only categories at >=60%
+              of their limit appear; everything green stays behind the link,
+              so rendering nothing here is the healthy state, not a gap. */}
+          {watchList.length > 0 && (
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 1 }}>
+                <Typography variant="h6">{t('budgetHealth')}</Typography>
+                <Link component={RouterLink} to="/budgets" variant="body2">
+                  {t('viewBudgets')}
+                </Link>
+              </Box>
+              <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, px: 2, py: 1.5 }}>
+                {watchList.map((row, i) => (
+                  <Box key={row.budget.budgetId} sx={{ mt: i === 0 ? 0 : 1.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CategoryDot categoryId={row.budget.categoryId!} />
+                        <Typography variant="body2">{categoryLabelById(row.budget.categoryId!)}</Typography>
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        {formatCurrency(row.spent)} / {formatCurrency(row.budget.limitAmount)}
+                      </Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={Math.min(row.ratio * 100, 100)}
+                      color={row.ratio > 1 ? 'error' : 'warning'}
+                      sx={{ height: 6, borderRadius: 3 }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          )}
 
           {/* W5 -- recent, grouped by day */}
           <Box>

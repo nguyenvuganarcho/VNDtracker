@@ -111,6 +111,13 @@ export const vi: Record<keyof typeof en, string> = {
   items: 'khoản',
   last7Days: '7 ngày gần đây',
   avgLabel: 'TB',
+  leftThisWeek: 'Còn lại tuần này',
+  fromMonthlyBudget: 'từ ngân sách tháng',
+  overBy: 'Vượt',
+  setBudgetCta: 'Đặt hạn mức tháng để biết còn bao nhiêu để tiêu',
+  thisWeekByCategory: 'Tuần này theo danh mục',
+  noSpendThisWeek: 'Tuần này chưa chi khoản nào.',
+  budgetHealth: 'Cần chú ý',
 
   category_food: 'Ăn uống',
   category_transport: 'Di chuyển',
