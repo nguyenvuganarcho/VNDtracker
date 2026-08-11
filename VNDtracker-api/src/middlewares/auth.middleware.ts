@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { ApiResponse } from '../common/apiResponse';
+import { getJwtSecret } from '../config/jwt';
 
 declare global {
   namespace Express {
@@ -13,8 +14,6 @@ declare global {
     }
   }
 }
-
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
 
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -34,7 +33,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
       );
     }
 
-    const decoded = jwt.verify(parts[1], JWT_SECRET) as any;
+    const decoded = jwt.verify(parts[1], getJwtSecret()) as any;
 
     req.user = {
       userId: decoded.userId,

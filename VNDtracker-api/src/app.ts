@@ -6,6 +6,10 @@ import cors from 'cors';
 
 const app: Application = express();
 
+// Render terminates TLS at its proxy; without this, rate limiting keys every
+// request by the proxy's IP instead of the client's.
+app.set('trust proxy', 1);
+
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true,

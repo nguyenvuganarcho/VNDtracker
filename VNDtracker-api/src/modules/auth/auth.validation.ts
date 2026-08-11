@@ -1,7 +1,10 @@
 import Joi from 'joi';
 
+// Emails are normalized to lowercase everywhere they enter the system, so
+// Dat@gmail.com and dat@gmail.com are the same account for register, login,
+// and forgot-password alike.
 export const registerSchema = Joi.object({
-  email: Joi.string().email().required().messages({
+  email: Joi.string().email().lowercase().required().messages({
     'string.empty': 'Email is required',
     'string.email': 'Email must be valid',
   }),
@@ -15,7 +18,7 @@ export const registerSchema = Joi.object({
 });
 
 export const loginSchema = Joi.object({
-  email: Joi.string().email().required().messages({
+  email: Joi.string().email().lowercase().required().messages({
     'string.empty': 'Email is required',
     'string.email': 'Email must be valid',
   }),
@@ -35,7 +38,7 @@ export const changePasswordSchema = Joi.object({
 });
 
 export const forgotPasswordSchema = Joi.object({
-  email: Joi.string().email().required().messages({
+  email: Joi.string().email().lowercase().required().messages({
     'string.empty': 'Email is required',
     'string.email': 'Email must be valid',
   }),

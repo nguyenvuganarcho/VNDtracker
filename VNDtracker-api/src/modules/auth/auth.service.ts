@@ -15,6 +15,7 @@ import {
 } from './auth.dto';
 import { ConflictError, UnauthorizedError } from '../../common/errors';
 import { sendPasswordResetEmail } from '../../config/email';
+import { getJwtSecret } from '../../config/jwt';
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -26,7 +27,7 @@ export class AuthService {
 
   constructor() {
     this.repo = new AuthRepository();
-    this.jwtSecret = process.env.JWT_SECRET || 'fallback-secret';
+    this.jwtSecret = getJwtSecret();
     this.tokenExpiry = (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'];
   }
 
